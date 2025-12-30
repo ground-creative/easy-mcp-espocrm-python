@@ -38,8 +38,6 @@ def espo_update_lead_tool(
     teams_ids: Annotated[Optional[List[str]], Field(description="Team IDs")]= None,
     campaign_id: Annotated[Optional[str], Field(description="Campaign ID")]= None,
     target_list_id: Annotated[Optional[str], Field(description="Target list ID")]= None,
-    duplicate_source_id: Annotated[Optional[str], Field(description="Record ID of an entity being duplicated. Sent as header 'X-Duplicate-Source-Id'.")] = None,
-    skip_duplicate_check: Annotated[Optional[bool], Field(description="Skip duplicate check. Sent as header 'X-Skip-Duplicate-Check' with value 'true' or 'false'.")] = None,
  ) -> Dict:
     """
     Update an existing Lead in EspoCRM.
