@@ -1,0 +1,50 @@
+from typing import Dict, Annotated
+from core.utils.logger import logger
+from core.utils.state import global_state
+from app.utils.espo_helpers import EspoAPI
+from app.middleware.AuthenticationMiddleware import check_access
+from pydantic import Field
+from core.utils.tools import doc_tag, doc_name
+
+
+@doc_tag("Emails")
+@doc_name("Unrelate User from Email")
+def espo_unrelate_user_from_email_tool(
+    email_id: Annotated[str, Field(description="ID of the Email record")],
+    user_id: Annotated[str, Field(description="ID of the User to unrelate")],
+) -> Dict:
+    """
+    Unrelate a User record from an Email in EspoCRM through the 'assignedUsers' link.
+
+    Args:
+    - `email_id` (str): ID of the Email from which the User will be removed.
+    - `user_id` (str): ID of the User to unrelate.
+
+    Example Requests:
+    - Unrelate a user from an email:
+    espo_unrelate_user_from_email_tool(email_id="email123", user_id="user456")
+    - Unrelate another user from the same email:
+    espo_unrelate_user_from_email_tool(email_id="email123", user_id="user789")
+
+    Returns:
+    - A structured dict containing the API response with keys:
+    `status_code`, `ok`, `data`, `error`, and `error_type`.
+    """
+    logger.info(f"Request received to unrelate user {user_id} from email {email_id}")
+
+    # Check API key and access
+    auth_response = check_access(True)
+    if auth_response:
+        return auth_response
+
+    api_key = global_state.get("api_key")
+    api_address = global_state.get("api_address")
+    client = EspoAPI(api_address, api_key)
+
+    # DELETE payload to unrelate the user
+    payload = {"id": user_id}
+    result = client.call_api(
+        "DELETE", f"Email/{email_id}/assignedUsers", params=payload
+    )
+    logger.debug(f"EspoCRM unrelate user from email result: {result}")
+    return result

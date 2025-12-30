@@ -1,0 +1,168 @@
+from typing import Dict, Any, List, Optional, Annotated
+from core.utils.logger import logger
+from core.utils.state import global_state
+from app.utils.espo_helpers import EspoAPI, build_espo_params
+from app.middleware.AuthenticationMiddleware import check_access
+from pydantic import Field
+from core.utils.tools import doc_tag, doc_name
+
+
+@doc_tag("Users")
+@doc_name("Update User")
+def espo_update_user_tool(
+    user_id: str,
+    salutation_name: Annotated[
+        Optional[str], Field(description="Salutation (Mr., Ms., Dr., etc.)")
+    ] = None,
+    first_name: Annotated[
+        Optional[str], Field(description="First name (<=100 chars)")
+    ] = None,
+    middle_name: Annotated[
+        Optional[str], Field(description="Middle name (<=100 chars)")
+    ] = None,
+    last_name: Annotated[
+        Optional[str], Field(description="Last name (<=100 chars)")
+    ] = None,
+    title: Annotated[Optional[str], Field(description="Title (<=100 chars)")] = None,
+    position: Annotated[
+        Optional[str], Field(description="Position (<=100 chars)")
+    ] = None,
+    is_active: Annotated[Optional[bool], Field(description="Active flag")] = None,
+    user_type: Annotated[
+        Optional[str],
+        Field(
+            description="User type (regular, admin, portal, system, super-admin, api)"
+        ),
+    ] = None,
+    email_address: Annotated[
+        Optional[str], Field(description="Primary email (<=255 chars)")
+    ] = None,
+    email_address_data: Annotated[
+        Optional[List[Dict[str, Any]]], Field(description="Multiple email objects")
+    ] = None,
+    email_address_is_opted_out: Annotated[
+        Optional[bool], Field(description="Email opted out flag")
+    ] = None,
+    email_address_is_invalid: Annotated[
+        Optional[bool], Field(description="Email invalid flag")
+    ] = None,
+    phone_number: Annotated[
+        Optional[str], Field(description="Primary phone (<=36 chars)")
+    ] = None,
+    phone_number_data: Annotated[
+        Optional[List[Dict[str, Any]]], Field(description="Multiple phone objects")
+    ] = None,
+    phone_number_is_opted_out: Annotated[
+        Optional[bool], Field(description="Phone opted out flag")
+    ] = None,
+    phone_number_is_invalid: Annotated[
+        Optional[bool], Field(description="Phone invalid flag")
+    ] = None,
+    default_team_id: Annotated[
+        Optional[str], Field(description="Default Team ID")
+    ] = None,
+    teams_ids: Annotated[Optional[List[str]], Field(description="Team IDs")] = None,
+    roles_ids: Annotated[Optional[List[str]], Field(description="Role IDs")] = None,
+    portals_ids: Annotated[Optional[List[str]], Field(description="Portal IDs")] = None,
+    contact_id: Annotated[
+        Optional[str], Field(description="Contact ID linked to this user")
+    ] = None,
+    account_id: Annotated[
+        Optional[str], Field(description="Account ID linked to this user")
+    ] = None,
+    dashboard_template_id: Annotated[
+        Optional[str], Field(description="Dashboard template ID")
+    ] = None,
+    working_time_calendar_id: Annotated[
+        Optional[str], Field(description="Working time calendar ID")
+    ] = None,
+    layout_set_id: Annotated[Optional[str], Field(description="Layout set ID")] = None,
+    gender: Annotated[
+        Optional[str], Field(description="Gender (Male, Female, Neutral)")
+    ] = None,
+    avatar_id: Annotated[
+        Optional[str], Field(description="Attachment ID for avatar")
+    ] = None,
+    acceptance_status_meetings: Annotated[
+        Optional[str], Field(description="Acceptance status for meetings")
+    ] = None,
+    acceptance_status_calls: Annotated[
+        Optional[str], Field(description="Acceptance status for calls")
+    ] = None,
+    custom_fields: Annotated[
+        Optional[Dict[str, Any]],
+        Field(description="Custom EspoCRM fields (must start with `c`)"),
+    ] = None,
+) -> Dict:
+    """
+    Update an existing User in EspoCRM.
+
+    This tool updates a User record by `user_id`. Provide any User fields to update.
+    Parameters left as `None` will not be sent to avoid overwriting unchanged values.
+
+    Args:
+    - `user_id` (str): ID of the User record to update.
+    - `salutation_name` (Optional[str]): Salutation (e.g. 'Mr.', 'Ms.', 'Dr.').
+    - `first_name` (Optional[str]): First name (<=100 chars).
+    - `middle_name` (Optional[str]): Middle name (<=100 chars).
+    - `last_name` (Optional[str]): Last name (<=100 chars).
+    - `title` (Optional[str]): Title (<=100 chars).
+    - `position` (Optional[str]): Position (<=100 chars).
+    - `is_active` (Optional[bool]): Whether the user is active.
+    - `user_type` (Optional[str]): User type (regular, admin, portal, system, super-admin, api).
+    - `email_address` (Optional[str]): Primary email (<=255 chars).
+    - `email_address_data` (Optional[List[Dict[str, Any]]]): Multiple email objects.
+    - `email_address_is_opted_out` (Optional[bool]): Email opted out flag.
+    - `email_address_is_invalid` (Optional[bool]): Email invalid flag.
+    - `phone_number` (Optional[str]): Primary phone (<=36 chars).
+    - `phone_number_data` (Optional[List[Dict[str, Any]]]): Multiple phone objects.
+    - `phone_number_is_opted_out` (Optional[bool]): Phone opted out flag.
+    - `phone_number_is_invalid` (Optional[bool]): Phone invalid flag.
+    - `default_team_id` (Optional[str]): Default team ID.
+    - `teams_ids` (Optional[List[str]]): Team IDs.
+    - `roles_ids` (Optional[List[str]]): Role IDs.
+    - `portals_ids` (Optional[List[str]]): Portal IDs.
+    - `contact_id` (Optional[str]): Linked Contact ID.
+    - `account_id` (Optional[str]): Linked Account ID.
+    - `dashboard_template_id` (Optional[str]): Dashboard template ID.
+    - `working_time_calendar_id` (Optional[str]): Working time calendar ID.
+    - `layout_set_id` (Optional[str]): Layout set ID.
+    - `gender` (Optional[str]): Gender (Male, Female, Neutral).
+    - `avatar_id` (Optional[str]): Avatar attachment ID.
+    - `acceptance_status_meetings` (Optional[str]): Acceptance status for meetings.
+    - `acceptance_status_calls` (Optional[str]): Acceptance status for calls.
+    - `custom_fields` (Optional[Dict[str, Any]]): A dictionary of EspoCRM custom fields to update on the User record. All EspoCRM custom fields are prefixed with `c`.
+
+    Example Requests:
+    - Update basic user info:
+    espo_update_user_tool(user_id="u123", first_name="Alice", last_name="Smith", email_address="alice@example.com")
+    - Change roles and teams:
+    espo_update_user_tool(user_id="u123", roles_ids=["role1","role2"], teams_ids=["teamA"])
+    - Set opt-out flags and custom field:
+    espo_update_user_tool(user_id="u123", email_address_is_opted_out=True, custom_fields={"c_internal_note":"automated update"})
+
+    Returns:
+    - A structured dict containing the API response with keys:
+    `status_code`, `ok`, `data`, `error`, and `error_type`.
+    """
+    logger.info(f"Request received to update user {user_id} with params: {locals()}")
+
+    # Check api key and address are set in headers
+    auth_response = check_access(True)
+    if auth_response:
+        return auth_response
+
+    # Build params excluding internal-only values
+    params = build_espo_params(locals(), exclude={"user_id", "auth_response"})
+
+    # Merge custom fields if present
+    if custom_fields:
+        params.update(custom_fields)
+
+    api_key = global_state.get("api_key")
+    api_address = global_state.get("api_address")
+    client = EspoAPI(api_address, api_key)
+
+    result = client.call_api("PATCH", f"User/{user_id}", params=params)
+    logger.debug(f"EspoCRM update user result: {result}")
+    return result

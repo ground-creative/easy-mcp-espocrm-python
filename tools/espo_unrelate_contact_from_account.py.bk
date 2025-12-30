@@ -1,0 +1,50 @@
+from typing import Dict, Annotated
+from core.utils.logger import logger
+from core.utils.state import global_state
+from app.utils.espo_helpers import EspoAPI
+from app.middleware.AuthenticationMiddleware import check_access
+from pydantic import Field
+from core.utils.tools import doc_tag, doc_name
+
+
+@doc_tag("Accounts")
+@doc_name("Unrelate Contact from Account")
+def espo_unrelate_contact_from_account_tool(
+    account_id: Annotated[str, Field(description="ID of the Account record")],
+    contact_id: Annotated[str, Field(description="ID of the Contact to unrelate")],
+) -> Dict:
+    """
+    Unrelate a Contact record from an Account in EspoCRM through the 'contacts' link.
+
+    Args:
+    - `account_id` (str): ID of the Account from which the Contact will be removed.
+    - `contact_id` (str): ID of the Contact to unrelate.
+
+    Example Requests:
+    - Unrelate a contact from an account:
+    espo_unrelate_contact_from_account_tool(account_id="abc123", contact_id="contact456")
+    - Unrelate another contact from the same account:
+    espo_unrelate_contact_from_account_tool(account_id="abc123", contact_id="contact789")
+
+    Returns:
+    - A structured dict containing the API response with keys:
+    `status_code`, `ok`, `data`, `error`, and `error_type`.
+    """
+    logger.info(
+        f"Request received to unrelate contact {contact_id} from account {account_id}"
+    )
+
+    # Check API key and access
+    auth_response = check_access(True)
+    if auth_response:
+        return auth_response
+
+    api_key = global_state.get("api_key")
+    api_address = global_state.get("api_address")
+    client = EspoAPI(api_address, api_key)
+
+    # DELETE payload to unrelate the contact
+    payload = {"id": contact_id}
+    result = client.call_api("DELETE", f"Account/{account_id}/contacts", params=payload)
+    logger.debug(f"EspoCRM unrelate contact from account result: {result}")
+    return result

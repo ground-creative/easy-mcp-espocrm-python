@@ -1,0 +1,47 @@
+from typing import Dict, Annotated
+from core.utils.logger import logger
+from core.utils.state import global_state
+from app.utils.espo_helpers import EspoAPI
+from app.middleware.AuthenticationMiddleware import check_access
+from pydantic import Field
+from core.utils.tools import doc_tag, doc_name
+
+
+@doc_tag("Campaigns")
+@doc_name("Relate Contact to Campaign")
+def espo_relate_contact_to_campaign_tool(
+    campaign_id: Annotated[str, Field(description="ID of the Campaign record")],
+    contact_id: Annotated[str, Field(description="ID of the Contact to relate")],
+) -> Dict:
+    """
+    Relate a Contact record to a Campaign in EspoCRM through the 'contacts' link.
+
+    Args:
+    - `campaign_id` (str): ID of the Campaign to which the Contact will be related.
+    - `contact_id` (str): ID of the Contact to relate.
+
+    Example Requests:
+    - Relate a contact to a campaign: espo_relate_contact_to_campaign_tool(campaign_id="abc123", contact_id="contact456")
+    - Relate another contact to the same campaign: espo_relate_contact_to_campaign_tool(campaign_id="abc123", contact_id="contact789")
+
+    Returns:
+    - A structured dict containing the API response with keys:
+      `status_code`, `ok`, `data`, `error`, and `error_type`.
+    """
+    logger.info(f"Request received to relate contact {contact_id} to campaign {campaign_id}")
+
+    # Check API key and access
+    auth_response = check_access(True)
+    if auth_response:
+        return auth_response
+
+    api_key = global_state.get("api_key")
+    api_address = global_state.get("api_address")
+    client = EspoAPI(api_address, api_key)
+
+    # POST payload to relate the contact
+    payload = {"id": contact_id}
+    result = client.call_api("POST", f"Campaign/{campaign_id}/contacts", params=payload)
+
+    logger.debug(f"EspoCRM relate contact to campaign result: {result}")
+    return result

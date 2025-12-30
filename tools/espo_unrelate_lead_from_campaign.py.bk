@@ -1,0 +1,48 @@
+from typing import Dict, Annotated
+from core.utils.logger import logger
+from core.utils.state import global_state
+from app.utils.espo_helpers import EspoAPI
+from app.middleware.AuthenticationMiddleware import check_access
+from pydantic import Field
+from core.utils.tools import doc_tag, doc_name
+
+
+@doc_tag("Campaigns")
+@doc_name("Unrelate Lead from Campaign")
+def espo_unrelate_lead_from_campaign_tool(
+    campaign_id: Annotated[str, Field(description="ID of the Campaign record")],
+    lead_id: Annotated[str, Field(description="ID of the Lead to unrelate")],
+) -> Dict:
+    """
+    Unrelate a Lead record from a Campaign in EspoCRM through the 'leads' link.
+
+    Args:
+    - `campaign_id` (str): ID of the Campaign from which the Lead will be removed.
+    - `lead_id` (str): ID of the Lead to unrelate.
+
+    Example Requests:
+    - Unrelate a lead from a campaign:
+      espo_unrelate_lead_from_campaign_tool(campaign_id="abc123", lead_id="lead456")
+    - Unrelate another lead from the same campaign:
+      espo_unrelate_lead_from_campaign_tool(campaign_id="abc123", lead_id="lead789")
+
+    Returns:
+    - A structured dict containing the API response with keys:
+      `status_code`, `ok`, `data`, `error`, and `error_type`.
+    """
+    logger.info(f"Request received to unrelate lead {lead_id} from campaign {campaign_id}")
+
+    # Check API key and access
+    auth_response = check_access(True)
+    if auth_response:
+        return auth_response
+
+    api_key = global_state.get("api_key")
+    api_address = global_state.get("api_address")
+    client = EspoAPI(api_address, api_key)
+
+    # DELETE payload to unrelate the lead
+    payload = {"id": lead_id}
+    result = client.call_api('DELETE', f'Campaign/{campaign_id}/leads', params=payload)
+    logger.debug(f"EspoCRM unrelate lead from campaign result: {result}")
+    return result

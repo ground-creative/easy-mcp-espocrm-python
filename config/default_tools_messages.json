@@ -1,0 +1,109 @@
+{
+  "en": {
+    "espo_create_account_tool": {
+      "request-start": "Creating new account{% if params.name %} named `{{ params.name }}`{% endif %}{% if params.website %} with website `{{ params.website }}`{% endif %}{% if params.email_address %} and primary email `{{ params.email_address }}`{% endif %}..."
+    },
+    "espo_create_campaign_tool": {
+      "request-start": "Creating new campaign{% if params.name %} named `{{ params.name }}`{% endif %}{% if params.type %} of type `{{ params.type }}`{% endif %}{% if params.status %} with status `{{ params.status }}`{% endif %}..."
+    },
+    "espo_create_contact_tool": {
+      "request-start": "Creating new contact{% if params.first_name or params.last_name %} named `{{ params.first_name | default('') }} {{ params.last_name | default('') }}`{% endif %}{% if params.email_address %} with email `{{ params.email_address }}`{% endif %}{% if params.phone_number %} and phone `{{ params.phone_number }}`{% endif %}..."
+    },
+    "espo_create_email_tool": {
+      "request-start": "Creating new email{% if params.subject %} with subject `{{ params.subject }}`{% endif %}{% if params.to %} to `{{ params.to }}`{% endif %}{% if params.from_ or params.from %} from `{{ params.from_ | default(params.from, '') | trim }}`{% endif %}..."
+    },
+    "espo_create_lead_tool": {
+      "request-start": "Creating new lead{% if params.first_name or params.last_name %} named `{{ params.first_name | default('') }} {{ params.last_name | default('') }}`{% endif %}{% if params.email_address %} with email `{{ params.email_address }}`{% endif %}..."
+    },
+    "espo_create_call_tool": {
+      "request-start": "Creating new call{% if params.name %} named `{{ params.name }}`{% endif %}{% if params.date_start %} starting `{{ params.date_start }}`{% endif %}{% if params.status %} with status `{{ params.status }}`{% endif %}..."
+    },
+    "espo_create_target_list_tool": {
+      "request-start": "Creating new target list{% if params.name %} named `{{ params.name }}`{% endif %}..."
+    },
+    "espo_delete_account_tool": {
+      "request-start": "Deleting account with ID `{{ params.account_id }}`..."
+    },
+    "espo_delete_campaign_tool": {
+      "request-start": "Deleting campaign with ID `{{ params.campaign_id }}`..."
+    },
+    "espo_delete_contact_tool": {
+      "request-start": "Deleting contact with ID `{{ params.contact_id }}`..."
+    },
+    "espo_delete_email_tool": {
+      "request-start": "Deleting email with ID `{{ params.email_id }}`..."
+    },
+    "espo_delete_lead_tool": {
+      "request-start": "Deleting lead with ID `{{ params.lead_id }}`..."
+    },
+    "espo_delete_call_tool": {
+      "request-start": "Deleting call with ID `{{ params.call_id }}`..."
+    },
+    "espo_delete_target_list_tool": {
+      "request-start": "Deleting target list with ID `{{ params.target_list_id }}`..."
+    },
+    "espo_get_account_tool": {
+      "request-start": "Getting account with ID `{{ params.account_id }}`..."
+    },
+    "espo_get_campaign_tool": {
+      "request-start": "Getting campaign with ID `{{ params.campaign_id }}`..."
+    },
+    "espo_get_contact_tool": {
+      "request-start": "Getting contact with ID `{{ params.contact_id }}`..."
+    },
+    "espo_get_email_tool": {
+      "request-start": "Getting email with ID `{{ params.email_id }}`..."
+    },
+    "espo_get_lead_tool": {
+      "request-start": "Getting lead with ID `{{ params.lead_id }}`..."
+    },
+    "espo_get_target_list_tool": {
+      "request-start": "Getting target list with ID `{{ params.target_list_id }}`..."
+    },
+    "espo_get_user_tool": {
+      "request-start": "Getting user with ID `{{ params.user_id }}`..."
+    },
+    "espo_list_accounts_tool": {
+      "request-start": "Fetching accounts{% if params.text_filter %} matching '{{ params.text_filter }}'{% endif %}..."
+    },
+    "espo_list_campaigns_tool": {
+      "request-start": "Fetching campaigns{% if params.text_filter %} matching '{{ params.text_filter }}'{% endif %}..."
+    },
+    "espo_list_contacts_tool": {
+      "request-start": "Fetching contacts{% if params.text_filter %} matching '{{ params.text_filter }}'{% endif %}..."
+    },
+    "espo_list_emails_tool": {
+      "request-start": "Fetching emails{% if params.text_filter %} matching '{{ params.text_filter }}'{% endif %}..."
+    },
+    "espo_list_calls_tool": {
+      "request-start": "Fetching calls{% if params.primary_filter %} with primary_filter={{ params.primary_filter }}{% endif %}{% if params.text_filter %} text_filter='{{ params.text_filter }}'{% endif %}{% if params.attribute_select %} attributes={{ params.attribute_select | join(',') }}{% endif %}{% if params.bool_filter_list %} bool_filters={{ params.bool_filter_list | join(',') }}{% endif %}{% if params.where_group %} where_group={{ params.where_group | tojson }}{% endif %}{% if params.max_size %} max_size={{ params.max_size }}{% endif %}{% if params.order_by %} order_by={{ params.order_by }} {{ params.order }}{% endif %}..."
+    },
+    "espo_list_leads_tool": {
+      "request-start": "Fetching leads{% if params.primary_filter %} with primary_filter={{ params.primary_filter }}{% endif %}{% if params.text_filter %} text_filter='{{ params.text_filter }}'{% endif %}{% if params.attribute_select %} attributes={{ params.attribute_select | join(',') }}{% endif %}{% if params.bool_filter_list %} bool_filters={{ params.bool_filter_list | join(',') }}{% endif %}{% if params.where_group %} where_group={{ params.where_group | tojson }}{% endif %}{% if params.max_size %} max_size={{ params.max_size }}{% endif %}{% if params.order_by %} order_by={{ params.order_by }} {{ params.order }}{% endif %}..."
+    },
+    "espo_list_target_lists_tool": {
+      "request-start": "Fetching target lists{% if params.text_filter %} matching '{{ params.text_filter }}'{% endif %}..."
+    },
+    "espo_list_users_tool": {
+      "request-start": "Fetching users{% if params.text_filter %} matching '{{ params.text_filter }}'{% endif %}..."
+    },
+    "espo_update_account_tool": {
+      "request-start": "Updating account with ID `{{ params.account_id }}`..."
+    },
+    "espo_update_campaign_tool": {
+      "request-start": "Updating campaign with ID `{{ params.campaign_id }}`..."
+    },
+    "espo_update_contact_tool": {
+      "request-start": "Updating contact with ID `{{ params.contact_id }}`..."
+    },
+    "espo_update_email_tool": {
+      "request-start": "Updating email with ID `{{ params.email_id }}`..."
+    },
+    "espo_update_lead_tool": {
+      "request-start": "Updating lead with ID `{{ params.lead_id }}`..."
+    },
+    "espo_update_target_list_tool": {
+      "request-start": "Updating target list with ID `{{ params.target_list_id }}`..."
+    }
+  }
+}

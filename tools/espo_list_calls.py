@@ -7,13 +7,13 @@ from pydantic import Field
 from core.utils.tools import doc_tag, doc_name
 
 
-@doc_tag("Leads")
-@doc_name("List Leads")
-def espo_list_leads_tool(
+@doc_tag("Calls")
+@doc_name("List Calls")
+def espo_list_calls_tool(
     attribute_select: Annotated[
         Optional[List[str]],
         Field(
-            description="List of attributes to return. Use to limit fields and improve performance."
+            description="Attributes to return. Select only the necessary ones to improve performance."
         ),
     ] = None,
     bool_filter_list: Annotated[
@@ -34,7 +34,7 @@ def espo_list_leads_tool(
         Optional[str], Field(description="Attribute/field to order by.")
     ] = None,
     primary_filter: Annotated[
-        Optional[str], Field(description="Primary filter: actual|active|converted")
+        Optional[str], Field(description="Primary filter: planned|held|todays")
     ] = None,
     text_filter: Annotated[
         Optional[str], Field(description="Text filter query (supports wildcard *)")
@@ -45,34 +45,35 @@ def espo_list_leads_tool(
     ] = None,
 ) -> Dict:
     """
-    List leads from EspoCRM with optional filtering, sorting, and pagination.
-
-    This tool fetches leads with advanced query options such as attribute selection, boolean filters,
-    pagination, sorting, and deep where group conditions.
+    List Calls from EspoCRM with optional filtering, sorting, and pagination.
 
     Args:
     - `attribute_select` (Optional[List[str]]): Attributes to include in the response to improve performance.
     - `bool_filter_list` (Optional[List[str]]): Boolean filters such as `['onlyMy']`.
-    - `max_size` (Optional[int]): Maximum number of records to return (0–200). Overrides page_size if provided.
-    - `offset` (Optional[int]): Pagination offset (0-based). If not set, computed from page and page_size.
+    - `max_size` (Optional[int]): Maximum number of records to return (0–200).
+    - `offset` (Optional[int]): Pagination offset (0-based).
     - `order` (Optional[str]): Sort direction, either `'asc'` or `'desc'`.
     - `order_by` (Optional[str]): Attribute to sort results by.
-    - `primary_filter` (Optional[str]): Primary filter to use. Allowed: `'actual'`, `'active'`, `'converted'`.
+    - `primary_filter` (Optional[str]): Primary filter to use. Allowed: `'planned'`, `'held'`, `'todays'`.
     - `text_filter` (Optional[str]): Text search query. Supports wildcard `*`.
     - `where_group` (Optional[List[Dict[str, Any]]]): Advanced deepObject filters for complex queries.
 
     Example Requests:
-    - Fetch first 50 leads with only selected attributes:
-    espo_list_leads_tool(attribute_select=["firstName", "lastName", "emailAddress"], max_size=50)
-    - Fetch leads assigned only to the current user, sorted by creation date descending:
-    espo_list_leads_tool(bool_filter_list=["onlyMy"], order="desc", order_by="createdAt")
-    - Fetch leads using advanced whereGroup filter:
-    espo_list_leads_tool(where_group=[{"type": "equals", "attribute": "status", "value": "New"}, {"type": "contains", "attribute": "emailAddress", "value": "@example.com"}])
+    - Fetch first 50 calls with only selected attributes:
+        espo_list_calls_tool(attribute_select=["name", "dateStart"], max_size=50)
+    - Fetch calls assigned to current user only (bool filter):
+        espo_list_calls_tool(bool_filter_list=["onlyMy"], max_size=100)
+    - Fetch today's planned calls:
+        espo_list_calls_tool(primary_filter="todays", primary_filter="planned")
+    - Fetch outbound calls using a where_group filter:
+        espo_list_calls_tool(where_group=[{"type": "equals", "attribute": "direction", "value": "Outbound"}])
+    - Fetch calls filtered by parent (Account) and paginated:
+        espo_list_calls_tool(where_group=[{"type":"equals","attribute":"parentType","value":"Account"},{"type":"equals","attribute":"parentId","value":"<ACCOUNT_ID>"}], max_size=25, offset=50)
 
     Returns:
-    - A dictionary containing leads data and metadata.
+    - A dictionary containing calls data and metadata.
     """
-    logger.debug(f"Request received to list leads with params: {locals()}")
+    logger.debug(f"Request received to list calls with params: {locals()}")
 
     # Check api key and address are set in headers
     auth_response = check_access(True)
@@ -84,6 +85,6 @@ def espo_list_leads_tool(
     api_key = global_state.get("api_key")
     api_address = global_state.get("api_address")
     client = EspoAPI(api_address, api_key)
-    result = client.call_api("GET", "Lead", params=params)
-    logger.debug(f"EspoCRM list leads result: {result}")
+    result = client.call_api("GET", "Call", params=params)
+    logger.debug(f"EspoCRM list calls result: {result}")
     return result

@@ -2,6 +2,7 @@ from core.utils.env import EnvConfig
 
 SERVICES = [
     "core.services.server_info",    # server info html page
+    "app.services.default_tools_messages",
 ]
 
 # Optional, add configuration for the info server

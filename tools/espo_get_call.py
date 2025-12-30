@@ -7,23 +7,28 @@ from core.utils.tools import doc_tag, doc_name
 from pydantic import Field
 
 
-@doc_tag("Leads")
-@doc_name("Read Lead")
-def espo_get_lead_tool(lead_id: Annotated[str, Field(description="ID of the Lead record to retrieve")]) -> Dict:
+@doc_tag("Calls")
+@doc_name("Read Call")
+def espo_get_call_tool(
+    call_id: Annotated[str, Field(description="ID of the Call record to retrieve")],
+) -> Dict:
     """
-    Get a single Lead record by ID from EspoCRM.
+    Get a single Call record by ID from EspoCRM.
+
+    This tool retrieves an existing Call record, including metadata, participants,
+    related entities, and timestamps.
 
     Args:
-    - `lead_id` (str): The ID of the Lead to fetch.
-    
+    - `call_id` (str): The ID of the Call record to fetch.
+
     Example Request:
-    - espo_get_lead_tool(lead_id="abc123")
+    - espo_get_call_tool(call_id="abc123")
 
     Returns:
     - A structured dict containing the API response with keys:
       `status_code`, `ok`, `data`, `error`, and `error_type`.
     """
-    logger.info(f"Request received to fetch lead id={lead_id}")
+    logger.info(f"Request received to fetch call id={call_id}")
 
     # Verify API configuration and access
     auth_response = check_access(True)
@@ -34,7 +39,7 @@ def espo_get_lead_tool(lead_id: Annotated[str, Field(description="ID of the Lead
     api_address = global_state.get("api_address")
     client = EspoAPI(api_address, api_key)
 
-    # Use the canonical instance method which returns a structured dict
-    result = client.call_api('GET', f'Lead/{lead_id}')
-    logger.debug(f"EspoCRM get lead result: {result}")
+    # Fetch Call record by ID
+    result = client.call_api("GET", f"Call/{call_id}")
+    logger.debug(f"EspoCRM get call result: {result}")
     return result

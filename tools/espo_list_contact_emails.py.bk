@@ -1,0 +1,89 @@
+from typing import Dict, Any, List, Optional, Annotated
+from core.utils.logger import logger
+from core.utils.state import global_state
+from app.utils.espo_helpers import EspoAPI, build_espo_params
+from app.middleware.AuthenticationMiddleware import check_access
+from pydantic import Field
+from core.utils.tools import doc_tag, doc_name
+
+
+@doc_tag("Contacts")
+@doc_name("List Emails of Contact")
+def espo_list_contact_emails_tool(
+    contact_id: Annotated[str, Field(description="ID of the Contact record")],
+    attribute_select: Annotated[
+        Optional[List[str]],
+        Field(description="List of Email attributes to return. Select only necessary ones to improve performance.")
+    ] = None,
+    max_size: Annotated[
+        Optional[int], Field(description="Maximum number of records to return (0-200)")
+    ] = None,
+    offset: Annotated[
+        Optional[int], Field(description="Pagination offset (>=0)")
+    ] = None,
+    order: Annotated[
+        Optional[str], Field(description="Sort direction: 'asc' or 'desc'")
+    ] = None,
+    order_by: Annotated[
+        Optional[str], Field(description="Attribute/field to order by")
+    ] = None,
+    text_filter: Annotated[
+        Optional[str], Field(description="Text filter query. Supports wildcard '*'")
+    ] = None,
+    where_group: Annotated[
+        Optional[List[Dict[str, Any]]],
+        Field(description="Advanced where group filters for complex queries")
+    ] = None,
+) -> Dict:
+    """
+    List Email records related to a specific Contact via the 'emails' link.
+
+    Args:
+    - `contact_id` (str): ID of the Contact record.
+    - `attribute_select` (Optional[List[str]]): List of Email fields to include in the response.
+    - `max_size` (Optional[int]): Maximum number of records to return (0-200).
+    - `offset` (Optional[int]): Pagination offset (0-based).
+    - `order` (Optional[str]): Sort direction: 'asc' or 'desc'.
+    - `order_by` (Optional[str]): Attribute to sort by.
+    - `text_filter` (Optional[str]): Text search query. Supports wildcard '*'.
+    - `where_group` (Optional[List[Dict[str, Any]]]): Deep object filters for complex queries.
+
+    Example Requests:
+    - List all emails for a contact: espo_list_contact_emails_tool(contact_id="abc123")
+    - List only subject and dateSent: espo_list_contact_emails_tool(contact_id="abc123", attribute_select=["subject", "dateSent"])
+    - List unread emails: espo_list_contact_emails_tool(contact_id="abc123", where_group=[{"type": "isFalse", "attribute": "isRead"}])
+
+    Returns:
+    - A dictionary with keys:
+      `status_code`, `ok`, `data`, `error`, `error_type`
+    """
+    logger.info(
+        f"Request received to list emails for contact {contact_id} "
+        f"with params: {locals()}"
+    )
+
+    # Auth check
+    auth_response = check_access(True)
+    if auth_response:
+        return auth_response
+
+    # Build query params
+    params = build_espo_params(
+        locals(),
+        exclude={"contact_id", "auth_response"}
+    )
+
+    api_key = global_state.get("api_key")
+    api_address = global_state.get("api_address")
+
+    client = EspoAPI(api_address, api_key)
+
+    # Call EspoCRM API
+    result = client.call_api(
+        "GET",
+        f"Contact/{contact_id}/emails",
+        params=params
+    )
+
+    logger.debug(f"EspoCRM list contact emails result: {result}")
+    return result

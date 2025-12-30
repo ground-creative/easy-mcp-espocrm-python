@@ -1,0 +1,50 @@
+from typing import Dict, Annotated
+from core.utils.logger import logger
+from core.utils.state import global_state
+from app.utils.espo_helpers import EspoAPI
+from app.middleware.AuthenticationMiddleware import check_access
+from pydantic import Field
+from core.utils.tools import doc_tag, doc_name
+
+
+@doc_tag("Accounts")
+@doc_name("Relate Contact to Account")
+def espo_relate_contact_to_account_tool(
+    account_id: Annotated[str, Field(description="ID of the Account record")],
+    contact_id: Annotated[str, Field(description="ID of the Contact to relate")],
+) -> Dict:
+    """
+    Relate a Contact record to an Account in EspoCRM through the 'contacts' link.
+
+    Args:
+    - `account_id` (str): ID of the Account to which the Contact will be related.
+    - `contact_id` (str): ID of the Contact to relate.
+
+    Example Requests:
+    - Relate a single contact to an account:
+    espo_relate_contact_to_account_tool(account_id="abc123", contact_id="contact456")
+    - Relate another contact to the same account:
+    espo_relate_contact_to_account_tool(account_id="abc123", contact_id="contact789")
+
+    Returns:
+    - A structured dict containing the API response with keys:
+    `status_code`, `ok`, `data`, `error`, and `error_type`.
+    """
+    logger.info(
+        f"Request received to relate contact {contact_id} to account {account_id}"
+    )
+
+    # Check API key and access
+    auth_response = check_access(True)
+    if auth_response:
+        return auth_response
+
+    api_key = global_state.get("api_key")
+    api_address = global_state.get("api_address")
+    client = EspoAPI(api_address, api_key)
+
+    # POST payload to relate the contact
+    payload = {"id": contact_id}
+    result = client.call_api("POST", f"Account/{account_id}/contacts", params=payload)
+    logger.debug(f"EspoCRM relate contact to account result: {result}")
+    return result

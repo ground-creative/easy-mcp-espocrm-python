@@ -1,0 +1,48 @@
+from typing import Dict, Annotated
+from core.utils.logger import logger
+from core.utils.state import global_state
+from app.utils.espo_helpers import EspoAPI
+from app.middleware.AuthenticationMiddleware import check_access
+from pydantic import Field
+from core.utils.tools import doc_tag, doc_name
+
+
+@doc_tag("Campaigns")
+@doc_name("Relate Lead to Campaign")
+def espo_relate_lead_to_campaign_tool(
+    campaign_id: Annotated[str, Field(description="ID of the Campaign record")],
+    lead_id: Annotated[str, Field(description="ID of the Lead to relate")],
+) -> Dict:
+    """
+    Relate a Lead record to a Campaign in EspoCRM through the 'leads' link.
+
+    Args:
+    - `campaign_id` (str): ID of the Campaign to which the Lead will be related.
+    - `lead_id` (str): ID of the Lead to relate.
+
+    Example Requests:
+    - Relate a single lead to a campaign:
+      espo_relate_lead_to_campaign_tool(campaign_id="abc123", lead_id="lead456")
+    - Relate another lead to the same campaign:
+      espo_relate_lead_to_campaign_tool(campaign_id="abc123", lead_id="lead789")
+
+    Returns:
+    - A structured dict containing the API response with keys:
+      `status_code`, `ok`, `data`, `error`, and `error_type`.
+    """
+    logger.info(f"Request received to relate lead {lead_id} to campaign {campaign_id}")
+
+    # Check API key and access
+    auth_response = check_access(True)
+    if auth_response:
+        return auth_response
+
+    api_key = global_state.get("api_key")
+    api_address = global_state.get("api_address")
+    client = EspoAPI(api_address, api_key)
+
+    # POST payload to relate the lead
+    payload = {"id": lead_id}
+    result = client.call_api('POST', f'Campaign/{campaign_id}/leads', params=payload)
+    logger.debug(f"EspoCRM relate lead to campaign result: {result}")
+    return result

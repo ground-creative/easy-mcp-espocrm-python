@@ -1,0 +1,48 @@
+from typing import Dict, Annotated
+from core.utils.logger import logger
+from core.utils.state import global_state
+from app.utils.espo_helpers import EspoAPI
+from app.middleware.AuthenticationMiddleware import check_access
+from pydantic import Field
+from core.utils.tools import doc_tag, doc_name
+
+
+@doc_tag("Emails")
+@doc_name("Relate User to Email")
+def espo_relate_user_to_email_tool(
+    email_id: Annotated[str, Field(description="ID of the Email record")],
+    user_id: Annotated[str, Field(description="ID of the User to relate")],
+) -> Dict:
+    """
+    Relate a User record to an Email in EspoCRM through the 'assignedUsers' link.
+
+    Args:
+    - `email_id` (str): ID of the Email record.
+    - `user_id` (str): ID of the User to relate.
+
+    Example Requests:
+    - Assign a user to an email:
+    espo_relate_user_to_email_tool(email_id="email123", user_id="user456")
+    - Assign another user to the same email:
+    espo_relate_user_to_email_tool(email_id="email123", user_id="user789")
+
+    Returns:
+    - A structured dict containing the API response with keys:
+    `status_code`, `ok`, `data`, `error`, and `error_type`.
+    """
+    logger.info(f"Request received to relate user {user_id} to email {email_id}")
+
+    # Check API key and access
+    auth_response = check_access(True)
+    if auth_response:
+        return auth_response
+
+    api_key = global_state.get("api_key")
+    api_address = global_state.get("api_address")
+    client = EspoAPI(api_address, api_key)
+
+    # POST payload to relate the user
+    payload = {"id": user_id}
+    result = client.call_api("POST", f"Email/{email_id}/assignedUsers", params=payload)
+    logger.debug(f"EspoCRM relate user to email result: {result}")
+    return result

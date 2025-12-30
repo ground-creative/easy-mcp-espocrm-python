@@ -11,40 +11,100 @@ from core.utils.tools import doc_tag, doc_name
 @doc_name("Update Lead")
 def espo_update_lead_tool(
     lead_id: str,
-    salutation_name: Annotated[Optional[str], Field(description="Salutation (Mr., Ms., Dr., etc.)")] = None,
-    first_name: Annotated[Optional[str], Field(description="First name (<=100 chars)")] = None,
-    middle_name: Annotated[Optional[str], Field(description="Middle name (<=100 chars)")] = None,
-    last_name: Annotated[Optional[str], Field(description="Last name (<=100 chars)")] = None,
+    salutation_name: Annotated[
+        Optional[str], Field(description="Salutation (Mr., Ms., Dr., etc.)")
+    ] = None,
+    first_name: Annotated[
+        Optional[str], Field(description="First name (<=100 chars)")
+    ] = None,
+    middle_name: Annotated[
+        Optional[str], Field(description="Middle name (<=100 chars)")
+    ] = None,
+    last_name: Annotated[
+        Optional[str], Field(description="Last name (<=100 chars)")
+    ] = None,
     title: Annotated[Optional[str], Field(description="Title (<=100 chars)")] = None,
-    status: Annotated[Optional[str], Field(description="Lead status (New, Assigned, In Process, Converted, Recycled, Dead)")] = None,
-    source: Annotated[Optional[str], Field(description="Lead source (Call, Email, Campaign, etc.)")] = None,
-    industry: Annotated[Optional[str], Field(description="Industry (see allowed values)")] = None,
-    opportunity_amount: Annotated[Optional[float], Field(description="Opportunity amount (>=0)")] = None,
-    opportunity_amount_currency: Annotated[Optional[str], Field(description="Currency code (USD, EUR)")] = None,
-    website: Annotated[Optional[str], Field(description="Website (<=255 chars)")] = None,
-    address_street: Annotated[Optional[str], Field(description="Street (<=255 chars)")] = None,
-    address_city: Annotated[Optional[str], Field(description="City (<=100 chars)")] = None,
-    address_state: Annotated[Optional[str], Field(description="State (<=100 chars)")] = None,
-    address_country: Annotated[Optional[str], Field(description="Country (<=100 chars)")] = None,
-    address_postal_code: Annotated[Optional[str], Field(description="Postal code (<=40 chars)")] = None,
-    email_address: Annotated[Optional[str], Field(description="Primary email (<=255 chars)")] = None,
-    email_address_data: Annotated[Optional[List[Dict[str, Any]]], Field(description="Multiple emails array of objects")]= None,
-    phone_number: Annotated[Optional[str], Field(description="Primary phone number (<=36 chars)")] = None,
-    phone_number_data: Annotated[Optional[List[Dict[str, Any]]], Field(description="Multiple phone numbers array of objects")]= None,
-    do_not_call: Annotated[Optional[bool], Field(description="Do not call flag")] = None,
-    description: Annotated[Optional[str], Field(description="Description / notes")]= None,
-    account_name: Annotated[Optional[str], Field(description="Account name (<=255 chars)")] = None,
-    assigned_user_id: Annotated[Optional[str], Field(description="Assigned user ID")]= None,
-    teams_ids: Annotated[Optional[List[str]], Field(description="Team IDs")]= None,
-    campaign_id: Annotated[Optional[str], Field(description="Campaign ID")]= None,
-    target_list_id: Annotated[Optional[str], Field(description="Target list ID")]= None,
- ) -> Dict:
+    status: Annotated[
+        Optional[str],
+        Field(
+            description="Lead status (New, Assigned, In Process, Converted, Recycled, Dead)"
+        ),
+    ] = None,
+    source: Annotated[
+        Optional[str], Field(description="Lead source (Call, Email, Campaign, etc.)")
+    ] = None,
+    industry: Annotated[
+        Optional[str], Field(description="Industry (see allowed values)")
+    ] = None,
+    opportunity_amount: Annotated[
+        Optional[float], Field(description="Opportunity amount (>=0)")
+    ] = None,
+    opportunity_amount_currency: Annotated[
+        Optional[str], Field(description="Currency code (USD, EUR)")
+    ] = None,
+    website: Annotated[
+        Optional[str], Field(description="Website (<=255 chars)")
+    ] = None,
+    address_street: Annotated[
+        Optional[str], Field(description="Street (<=255 chars)")
+    ] = None,
+    address_city: Annotated[
+        Optional[str], Field(description="City (<=100 chars)")
+    ] = None,
+    address_state: Annotated[
+        Optional[str], Field(description="State (<=100 chars)")
+    ] = None,
+    address_country: Annotated[
+        Optional[str], Field(description="Country (<=100 chars)")
+    ] = None,
+    address_postal_code: Annotated[
+        Optional[str], Field(description="Postal code (<=40 chars)")
+    ] = None,
+    email_address: Annotated[
+        Optional[str], Field(description="Primary email (<=255 chars)")
+    ] = None,
+    email_address_data: Annotated[
+        Optional[List[Dict[str, Any]]],
+        Field(description="Multiple emails array of objects"),
+    ] = None,
+    phone_number: Annotated[
+        Optional[str], Field(description="Primary phone number (<=36 chars)")
+    ] = None,
+    phone_number_data: Annotated[
+        Optional[List[Dict[str, Any]]],
+        Field(description="Multiple phone numbers array of objects"),
+    ] = None,
+    do_not_call: Annotated[
+        Optional[bool], Field(description="Do not call flag")
+    ] = None,
+    description: Annotated[
+        Optional[str], Field(description="Description / notes")
+    ] = None,
+    account_name: Annotated[
+        Optional[str], Field(description="Account name (<=255 chars)")
+    ] = None,
+    assigned_user_id: Annotated[
+        Optional[str], Field(description="Assigned user ID")
+    ] = None,
+    teams_ids: Annotated[Optional[List[str]], Field(description="Team IDs")] = None,
+    campaign_id: Annotated[Optional[str], Field(description="Campaign ID")] = None,
+    target_list_id: Annotated[
+        Optional[str], Field(description="Target list ID")
+    ] = None,
+    custom_fields: Annotated[
+        Optional[Dict[str, Any]],
+        Field(
+            description=(
+                "Custom EspoCRM fields (custom fields must start with the `c` prefix, e.g. cSomeCustomField)."
+            )
+        ),
+    ] = None,
+) -> Dict:
     """
     Update an existing Lead in EspoCRM.
 
-    This tool updates a Lead record by `lead_id`. Provide any Lead fields to
-    update; parameters left as `None` will not be sent to avoid overwriting
-    unchanged values.
+    This tool updates a Lead record by `lead_id`. Provide any Lead fields to update.
+    parameters left as `None` will not be sent to avoid overwriting unchanged values.
 
     Args:
     - `lead_id` (str): ID of the Lead record to update.
@@ -75,24 +135,19 @@ def espo_update_lead_tool(
     - `teams_ids` (Optional[List[str]]): Team IDs.
     - `campaign_id` (Optional[str]): Campaign ID.
     - `target_list_id` (Optional[str]): Target list ID.
-   
+    - `custom_fields` (Optional[Dict[str, Any]]): A dictionary of EspoCRM custom fields to update on the Lead record. All EspoCRM custom fields are prefixed with `c`.
+
     Example Requests:
     - Update a lead's name and email:
-      ```python
-      espo_update_lead_tool(lead_id="abc123", first_name="Jane", last_name="Doe", email_address="jane@example.com")
-      ```
+    espo_update_lead_tool(lead_id="abc123", first_name="Jane", last_name="Doe", email_address="jane@example.com")
     - Update multiple fields including phone numbers:
-      ```python
-      espo_update_lead_tool(
-          lead_id="abc123",
-          phone_number_data=[{"phoneNumber": "+123456789", "primary": True}],
-          do_not_call=True
-      )
-      ```
+    espo_update_lead_tool(lead_id="abc123", phone_number_data=[{"phoneNumber": "+123456789", "primary": True}], do_not_call=True)
+    - Update custom fields:
+    espo_update_lead_tool(lead_id="6954254b5723b823f", custom_fields={"c_demo_url": "https://someurl", "c_score": 85})
 
     Returns:
     - A structured dict containing the API response with keys:
-      `status_code`, `ok`, `data`, `error`, and `error_type`.
+    `status_code`, `ok`, `data`, `error`, and `error_type`.
     """
     logger.info(f"Request received to update lead {lead_id} with params: {locals()}")
 
@@ -102,10 +157,14 @@ def espo_update_lead_tool(
         return auth_response
 
     params = build_espo_params(locals(), exclude={"lead_id", "auth_response"})
+
+    if custom_fields:
+        params.update(custom_fields)
+
     api_key = global_state.get("api_key")
     api_address = global_state.get("api_address")
     client = EspoAPI(api_address, api_key)
 
-    result = client.call_api('PATCH', f'Lead/{lead_id}', params=params)
+    result = client.call_api("PATCH", f"Lead/{lead_id}", params=params)
     logger.debug(f"EspoCRM update lead result: {result}")
     return result

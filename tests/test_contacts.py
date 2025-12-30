@@ -1,23 +1,23 @@
 import os
 import sys
 from core.utils.state import global_state
-from app.tools.espo_list_leads import espo_list_leads_tool
-from app.tools.espo_create_lead import espo_create_lead_tool
-from app.tools.espo_delete_lead import espo_delete_lead_tool
-from app.tools.espo_get_lead import espo_get_lead_tool
-from app.tools.espo_update_lead import espo_update_lead_tool
+from app.tools.espo_list_contacts import espo_list_contacts_tool
+from app.tools.espo_create_contact import espo_create_contact_tool
+from app.tools.espo_delete_contact import espo_delete_contact_tool
+from app.tools.espo_update_contact import espo_update_contact_tool
+from app.tools.espo_get_contact import espo_get_contact_tool
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 
-def test_espo_list_leads_tool(api_key_setup, setup_test_lead):
+def test_espo_list_contacts_tool(api_key_setup, setup_test_contact):
 
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
     )
     assert is_api_key_set, "No API key set in env file."
 
-    result = espo_list_leads_tool(max_size=2)
+    result = espo_list_contacts_tool(max_size=2)
 
     assert isinstance(result, dict)
     assert "data" in result and isinstance(result["data"], dict)
@@ -29,7 +29,7 @@ def test_espo_list_leads_tool(api_key_setup, setup_test_lead):
     assert data["total"] >= 1
 
 
-def test_espo_search_leads_tool(api_key_setup, setup_test_lead):
+def test_espo_search_contacts_tool(api_key_setup, setup_test_contact):
 
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
@@ -37,7 +37,7 @@ def test_espo_search_leads_tool(api_key_setup, setup_test_lead):
     assert is_api_key_set, "No API key set in env file."
 
     search_term = "Test"
-    result = espo_list_leads_tool(text_filter=search_term)
+    result = espo_list_contacts_tool(text_filter=search_term)
 
     assert isinstance(result, dict)
     assert "data" in result and isinstance(result["data"], dict)
@@ -45,95 +45,107 @@ def test_espo_search_leads_tool(api_key_setup, setup_test_lead):
     data = result["data"]
     assert "list" in data and isinstance(data["list"], list)
 
-    fixture_id = setup_test_lead["data"]["id"]
+    fixture_id = setup_test_contact["data"]["id"]
     ids = [item.get("id") for item in data["list"] if isinstance(item, dict)]
     assert (
         fixture_id in ids
-    ), f"Created lead id {fixture_id} not found in search results"
+    ), f"Created contact id {fixture_id} not found in search results"
 
 
-def test_espo_create_and_delete_lead_tool(api_key_setup):
+def test_espo_create_and_delete_contact_tool(api_key_setup):
 
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
     )
     assert is_api_key_set, "No API key set in env file."
 
-    lead_data = {
+    contact_data = {
         "first_name": "Test",
         "last_name": "Lead",
         "email_address": "test.lead@example.com",
         "skip_duplicate_check": True,
     }
-    result = espo_create_lead_tool(**lead_data)
+    result = espo_create_contact_tool(**contact_data)
 
     assert isinstance(result, dict)
     assert "status_code" in result and result["status_code"] == 200
 
-    delete = espo_delete_lead_tool(lead_id=result["data"]["id"])
+    delete = espo_delete_contact_tool(contact_id=result["data"]["id"])
 
     assert isinstance(delete, dict)
     assert "status_code" in delete and delete["status_code"] == 200
     assert "ok" in delete and delete["ok"] is True
 
 
-def test_espo_get_lead_tool(api_key_setup, setup_test_lead):
+def test_espo_get_contact_tool(api_key_setup, setup_test_contact):
 
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
     )
     assert is_api_key_set, "No API key set in env file."
 
-    lead_id = setup_test_lead["data"]["id"]
-    result = espo_get_lead_tool(lead_id=lead_id)
+    contact_id = setup_test_contact["data"]["id"]
+    result = espo_get_contact_tool(contact_id=contact_id)
 
     assert isinstance(result, dict)
     assert "status_code" in result and result["status_code"] == 200
     assert "ok" in result and result["ok"] is True
     assert "data" in result and isinstance(result["data"], dict)
-    assert result["data"]["id"] == lead_id
+    assert result["data"]["id"] == contact_id
 
 
-def test_espo_update_lead_tool(api_key_setup, setup_test_lead):
-    """Update the fixture lead and verify the changes persisted."""
+def test_espo_update_contact_tool(api_key_setup, setup_test_contact):
+    """Update the fixture contact and verify the changes persisted."""
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
     )
     assert is_api_key_set, "No API key set in env file."
 
-    lead_id = setup_test_lead["data"]["id"]
-    new_title = "QA Updated Title"
+    contact_id = setup_test_contact["data"]["id"]
+
+    # Fields to update
+    new_first_name = "QA_First"
+    new_last_name = "QA_Last"
     new_description = "Updated by automated test"
 
-    res = espo_update_lead_tool(
-        lead_id=lead_id, title=new_title, description=new_description
+    # Call update tool
+    res = espo_update_contact_tool(
+        contact_id=contact_id,
+        first_name=new_first_name,
+        last_name=new_last_name,
+        description=new_description,
     )
+
+    # Validate update call response
     assert isinstance(res, dict)
-    assert "status_code" in res and res["status_code"] == 200
-    assert "ok" in res and res["ok"] is True
+    assert res.get("status_code") == 200
+    assert res.get("ok") is True
 
-    # Fetch lead to verify updates
-    get_res = espo_get_lead_tool(lead_id=lead_id)
+    # Fetch contact to verify changes
+    get_res = espo_get_contact_tool(contact_id=contact_id)
     assert isinstance(get_res, dict)
-    assert "status_code" in get_res and get_res["status_code"] == 200
-    assert "ok" in get_res and get_res["ok"] is True
-    assert "data" in get_res and isinstance(get_res["data"], dict)
-    assert get_res["data"].get("title") == new_title
-    assert get_res["data"].get("description") == new_description
+    assert get_res.get("status_code") == 200
+    assert get_res.get("ok") is True
+    assert isinstance(get_res.get("data"), dict)
+
+    data = get_res["data"]
+    assert data.get("firstName") == new_first_name
+    assert data.get("lastName") == new_last_name
+    assert data.get("description") == new_description
 
 
-def test_espo_filter_by_email(api_key_setup, setup_test_lead):
+def test_espo_filter_by_email(api_key_setup, setup_test_contact):
 
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
     )
     assert is_api_key_set, "No API key set in env file."
 
-    fixture_email = setup_test_lead["data"].get("emailAddress")
+    fixture_email = setup_test_contact["data"].get("emailAddress")
     assert fixture_email, "Fixture did not provide an emailAddress"
 
     where = [{"type": "equals", "attribute": "emailAddress", "value": fixture_email}]
-    result = espo_list_leads_tool(where_group=where, max_size=50)
+    result = espo_list_contacts_tool(where_group=where, max_size=50)
 
     assert isinstance(result, dict)
     assert "status_code" in result and result["status_code"] == 200
@@ -146,9 +158,9 @@ def test_espo_filter_by_email(api_key_setup, setup_test_lead):
     items = data.get("list") or []
     assert isinstance(items, list)
 
-    fixture_id = setup_test_lead["data"].get("id")
+    fixture_id = setup_test_contact["data"].get("id")
     emails = [it.get("emailAddress") for it in items if isinstance(it, dict)]
     ids = [it.get("id") for it in items if isinstance(it, dict)]
     assert (
         fixture_email in emails or fixture_id in ids
-    ), f"Fixture lead not found by email {fixture_email} or id {fixture_id}"
+    ), f"Fixture contact not found by email {fixture_email} or id {fixture_id}"

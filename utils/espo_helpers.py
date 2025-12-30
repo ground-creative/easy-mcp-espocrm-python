@@ -120,7 +120,8 @@ class EspoAPI:
 
         kwargs = {"headers": headers, "timeout": timeout}
 
-        if method.upper() in ["POST", "PATCH", "PUT"] and not force_query_params:
+        if method.upper() in ["POST", "PATCH", "PUT", "DELETE"] and not force_query_params:
+            
             if params:
                 kwargs["json"] = params
         else:

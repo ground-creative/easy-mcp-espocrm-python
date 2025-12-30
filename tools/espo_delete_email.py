@@ -3,27 +3,29 @@ from core.utils.logger import logger
 from core.utils.state import global_state
 from app.utils.espo_helpers import EspoAPI
 from app.middleware.AuthenticationMiddleware import check_access
-from core.utils.tools import doc_tag, doc_name
 from pydantic import Field
+from core.utils.tools import doc_tag, doc_name
 
 
-@doc_tag("Leads")
-@doc_name("Read Lead")
-def espo_get_lead_tool(lead_id: Annotated[str, Field(description="ID of the Lead record to retrieve")]) -> Dict:
+@doc_tag("Emails")
+@doc_name("Delete Email")
+def espo_delete_email_tool(
+    email_id: Annotated[str, Field(description="ID of the Email record to delete")],
+) -> Dict:
     """
-    Get a single Lead record by ID from EspoCRM.
+    Remove an existing Email record in EspoCRM.
 
     Args:
-    - `lead_id` (str): The ID of the Lead to fetch.
-    
+    - `email_id` (str): The ID of the Email to remove.
+
     Example Request:
-    - espo_get_lead_tool(lead_id="abc123")
+    - espo_delete_email_tool(email_id="abc123")
 
     Returns:
     - A structured dict containing the API response with keys:
-      `status_code`, `ok`, `data`, `error`, and `error_type`.
+    `status_code`, `ok`, `data`, `error`, and `error_type`.
     """
-    logger.info(f"Request received to fetch lead id={lead_id}")
+    logger.info(f"Request received to delete email with id={email_id}")
 
     # Verify API configuration and access
     auth_response = check_access(True)
@@ -35,6 +37,6 @@ def espo_get_lead_tool(lead_id: Annotated[str, Field(description="ID of the Lead
     client = EspoAPI(api_address, api_key)
 
     # Use the canonical instance method which returns a structured dict
-    result = client.call_api('GET', f'Lead/{lead_id}')
-    logger.debug(f"EspoCRM get lead result: {result}")
+    result = client.call_api("DELETE", f"Email/{email_id}")
+    logger.debug(f"EspoCRM delete email result: {result}")
     return result

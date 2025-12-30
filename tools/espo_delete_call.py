@@ -7,25 +7,25 @@ from pydantic import Field
 from core.utils.tools import doc_tag, doc_name
 
 
-@doc_tag("Leads")
-@doc_name("Delete Lead")
-def espo_delete_lead_tool(
-    lead_id: Annotated[str, Field(description="ID of the Lead record to delete")],
+@doc_tag("Calls")
+@doc_name("Delete Call")
+def espo_delete_call_tool(
+    call_id: Annotated[str, Field(description="ID of the Call record to delete")],
 ) -> Dict:
     """
-    Remove an existing Lead record in EspoCRM.
+    Remove an existing Call record in EspoCRM.
 
     Args:
-    - `lead_id` (str): The ID of the Lead to remove.
+    - `call_id` (str): The ID of the Call to remove.
 
     Example Request:
-    - espo_delete_lead_tool(lead_id="abc123")
+    - espo_delete_call_tool(call_id="abc123")
 
     Returns:
     - A structured dict containing the API response with keys:
     `status_code`, `ok`, `data`, `error`, and `error_type`.
     """
-    logger.info(f"Request received to delete lead with id={lead_id}")
+    logger.info(f"Request received to delete call with id={call_id}")
 
     # Verify API configuration and access
     auth_response = check_access(True)
@@ -36,7 +36,7 @@ def espo_delete_lead_tool(
     api_address = global_state.get("api_address")
     client = EspoAPI(api_address, api_key)
 
-    # Use the canonical instance method which returns a structured dict
-    result = client.call_api("DELETE", f"Lead/{lead_id}")
-    logger.debug(f"EspoCRM delete lead result: {result}")
+    # Use canonical instance method which returns a structured dict
+    result = client.call_api("DELETE", f"Call/{call_id}")
+    logger.debug(f"EspoCRM delete call result: {result}")
     return result
