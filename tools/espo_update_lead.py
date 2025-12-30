@@ -4,10 +4,11 @@ from core.utils.state import global_state
 from app.utils.espo_helpers import EspoAPI, build_espo_params
 from app.middleware.AuthenticationMiddleware import check_access
 from pydantic import Field
-from core.utils.tools import doc_tag
+from core.utils.tools import doc_tag, doc_name
 
 
 @doc_tag("Leads")
+@doc_name("Update Lead")
 def espo_update_lead_tool(
     lead_id: str,
     salutation_name: Annotated[Optional[str], Field(description="Salutation (Mr., Ms., Dr., etc.)")] = None,

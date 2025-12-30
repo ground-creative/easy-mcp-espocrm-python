@@ -14,15 +14,14 @@ https://github.com/ground-creative/easy-mcp-python
 
 ## Authentication
 
-This application uses Google's OAuth service to authenticate users.
-To use this app, you must create an OAuth 2.0 Client ID in the Google Cloud Console and configure the appropriate scopes for your application.
+To use the EspoCRM API u need an api key and the server address.
 
 ## Installation
 
 1. Clone the repository from the root folder of the easy mcp installation:
 
 ```
-git clone https://github.com/ground-creative/easy-mcp-gdrive-tools-python.git app
+git clone https://github.com/ground-creative/easy-mcp-espocrm-python.git app
 ```
 
 2. Install requirements:
@@ -31,23 +30,14 @@ git clone https://github.com/ground-creative/easy-mcp-gdrive-tools-python.git ap
 pip install -r app/requirements.txt
 ```
 
-3. Generate encryption key:
+3. Add parameters to env file:
 
 ```
-python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+TEST_API_KEY=__YOUR_ESPOCRM_API_KEY__
+TEST_API_ADDRESS=__YOUR_ESPOCRM_SERVER_ADDRESS__
 ```
 
-4. Add parameters to env file:
-
-```
-APP_HOST=http://localhost:8000
-DB_PATH=storage/sqlite_credentials.db
-CYPHER=Your Encryption Key Here
-```
-
-5. Add `client_secrets.json` in storage folder
-
-6. Run the server:
+4. Run the server:
 
 ```
 # Run via fastapi wrapper
@@ -60,74 +50,14 @@ The following tools are provided by this MCP server:
 
 ## Tools and Specifications
 
-| Tool Name                    | Description                                                                                              | Parameters Required                                                            |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| Create Document              | Creates a new Google Docs document with the specified content                                            | title (str), content (str), parent_folder_id (Optional [str])                  |
-| Edit Document                | Edits an existing Google Docs document with the specified content                                        | document_id (str), new_content (str)                                           |
-| Create File                  | Creates a new text, JSON, or CSV file with the specified content and uploads it to Google Drive          | title (str), content (str), file_type (str), parent_folder_id (Optional [str]) |
-| Create Folder                | Creates a new folder in Google Drive                                                                     | folder_name (str), parent_id (Optional [str])                                  |
-| Delete Item                  | Deletes a specified item (file or folder) from Google Drive with confirmation logic                      | file_id (str), confirmation_token (Optional [str])                             |
-| Get File Contents            | Retrieves the contents of a file based on its type (Google Docs, Google Sheets, PDF, text, JSON, or CSV) | file_id (str)                                                                  |
-| Get Item Details             | Retrieves information about a file or folder in Google Drive based on its ID                             | item_id (str)                                                                  |
-| Get Items                    | Lists all items in a specified Google Drive folder or the root directory if no folder ID is provided     | folder_id (Optional [str])                                                     |
-| Move Item                    | Moves a file or folder to a new folder in Google Drive                                                   | item_id (str), new_parent_id (str)                                             |
-| Search Items by Name         | Searches for files and folders in Google Drive by their name                                             | name (str)                                                                     |
-| Add Rows to Spreadsheet      | Adds content to an existing Google Sheets document                                                       | sheet_id (str), values (list)                                                  |
-| Create Spreadsheet           | Creates a new Google Sheets document with the specified title                                            | title (str), parent_folder_id (Optional [str])                                 |
-| Delete Rows from Spreadsheet | Deletes specified rows from an existing Google Sheets document                                           | sheet_id (str), row_indices (list)                                             |
-| Edit Rows of Spreadsheet     | Edits rows in an existing Google Sheets document                                                         | sheet_id (str), range_name (str), values (list)                                |
+| Tool Name            | Description                                                                                              | Parameters Required                                                                 |
+| -------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Get Lead             | Retrieve a single Lead record by ID from EspoCRM.                                                        | `lead_id` (str)                                                                     |
+| List Leads           | List leads with filtering, pagination, sorting and advanced `where_group` deepObject filters.            | `attribute_select` (Optional[list]), `bool_filter_list` (Optional[list]), `max_size` (Optional[int, 0-200]), `offset` (Optional[int]), `order` (Optional[str]), `order_by` (Optional[str]), `primary_filter` (Optional[str]), `text_filter` (Optional[str]), `where_group` (Optional[list of dicts]) |
+| Create Lead          | Create a new Lead with common Lead fields and optional duplicate-handling headers.                      | Optional: `salutation_name`, `first_name`, `middle_name`, `last_name`, `title`, `status`, `source`, `industry`, `opportunity_amount`, `opportunity_amount_currency`, `website`, `address_street`, `address_city`, `address_state`, `address_country`, `address_postal_code`, `email_address`, `email_address_data`, `phone_number`, `phone_number_data`, `do_not_call`, `description`, `account_name`, `assigned_user_id`, `teams_ids`, `campaign_id`, `target_list_id`, `duplicate_source_id` (header), `skip_duplicate_check` (header) |
+| Update Lead          | Update an existing Lead. Only provided parameters are sent; supports duplicate-handling headers.         | `lead_id` (str), plus same optional fields as Create Lead                             |
+| Delete Lead          | Delete a Lead by ID.                                                                                     | `lead_id` (str)                                                                     |
 
-\* Make sure you have granted the appropriate scopes for the application to perform the operations on the drive.
-
-## How to Create a Google OAuth 2.0 Client ID
-
-1. Go to Google Cloud Console:
-   https://console.cloud.google.com/
-
-2. Create or Select a Project:
-
-   - Click on the project dropdown at the top.
-   - Select an existing project or click "New Project" to create a new one.
-
-3. Enable Required APIs:
-
-   - Navigate to: APIs & Services > Library
-   - Search for and enable the following APIs:
-     - Google Drive API
-     - Google Docs API
-     - Google Sheets API (if needed)
-
-4. Configure OAuth Consent Screen:
-
-   - Go to: APIs & Services > OAuth consent screen
-   - Choose "External" for public apps, or "Internal" for private use.
-   - Fill in the required fields:
-     - App name
-     - User support email
-     - Developer contact info
-   - Add necessary scopes:
-     - `https://www.googleapis.com/auth/drive`
-     - `https://www.googleapis.com/auth/documents`
-     - `https://www.googleapis.com/auth/spreadsheets`
-     - `openid`
-   - Save and continue
-
-5. Create OAuth 2.0 Credentials:
-
-   - Go to: APIs & Services > Credentials
-   - Click "Create Credentials" > "OAuth client ID"
-   - Choose the type based on your application:
-     - Web application
-     - Desktop app
-     - Other
-   - For web apps, add authorized redirect URIs (e.g. `https://your-app.com/auth/callback`)
-   - Add authorized JavaScript origins if required
-
-6. Save Your Credentials:
-   - After creating, Google will show:
-     - Client ID
-     - Client Secret
-   - Store these securely. You’ll need them in your app to authenticate users.
 
 # Screenshots
 

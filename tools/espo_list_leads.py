@@ -4,10 +4,11 @@ from core.utils.state import global_state
 from app.utils.espo_helpers import EspoAPI, build_espo_params
 from app.middleware.AuthenticationMiddleware import check_access
 from pydantic import Field
-from core.utils.tools import doc_tag
+from core.utils.tools import doc_tag, doc_name
 
 
 @doc_tag("Leads")
+@doc_name("List Leads")
 def espo_list_leads_tool(
     attribute_select: Annotated[
         Optional[List[str]],

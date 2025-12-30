@@ -3,11 +3,12 @@ from core.utils.logger import logger
 from core.utils.state import global_state
 from app.utils.espo_helpers import EspoAPI
 from app.middleware.AuthenticationMiddleware import check_access
-from core.utils.tools import doc_tag
+from core.utils.tools import doc_tag, doc_name
 from pydantic import Field
 
 
 @doc_tag("Leads")
+@doc_name("Read Lead")
 def espo_get_lead_tool(lead_id: Annotated[str, Field(description="ID of the Lead record to retrieve")]) -> Dict:
     """
     Get a single Lead record by ID from EspoCRM.
