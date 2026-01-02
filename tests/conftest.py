@@ -20,6 +20,7 @@ from app.tools.espo_create_target_list import espo_create_target_list_tool
 from app.tools.espo_delete_target_list import espo_delete_target_list_tool
 from app.tools.espo_delete_call import espo_delete_call_tool
 from app.tools.espo_create_call import espo_create_call_tool
+from app.tools.espo_list_users import espo_list_users_tool
 
 
 @pytest.fixture(scope="module")
@@ -195,10 +196,20 @@ def setup_test_target_list():
 @pytest.fixture(scope="module")
 def setup_test_call():
 
+    users = espo_list_users_tool()
+
+    assert isinstance(users, dict)
+    assert "data" in users and isinstance(users["data"], dict)
+    assert "list" in users["data"] and isinstance(users["data"]["list"], list)
+    assert len(users["data"]["list"]) >= 1, "No users found in EspoCRM instance."
+
     call_data = {
-        "name": "string",
+        "name": "Test Call",
         "status": "Planned",
         "description": "Test call description",
+        "date_start": "2026-11-29 12:34:56",
+        "date_end": "2026-11-29 12:34:56",
+        "assigned_user_id": users["data"]["list"][0]["id"],
     }
     result = espo_create_call_tool(**call_data)
     assert isinstance(result, dict)
