@@ -1,23 +1,23 @@
 import os
 import sys
 from core.utils.state import global_state
-from app.tools.espo_list_emails import espo_list_emails_tool
-from app.tools.espo_create_email import espo_create_email_tool
-from app.tools.espo_delete_email import espo_delete_email_tool
-from app.tools.espo_get_email import espo_get_email_tool
-from app.tools.espo_update_email import espo_update_email_tool
+from app.tools.list_emails import list_emails_tool
+from app.tools.create_email import create_email_tool
+from app.tools.delete_email import delete_email_tool
+from app.tools.get_email import get_email_tool
+from app.tools.update_email import update_email_tool
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 
-def test_espo_list_emails_tool(api_key_setup, setup_test_email):
+def test_list_emails_tool(api_key_setup, setup_test_email):
 
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
     )
     assert is_api_key_set, "No API key set in env file."
 
-    result = espo_list_emails_tool(max_size=2)
+    result = list_emails_tool(max_size=2)
 
     assert isinstance(result, dict)
     assert "data" in result and isinstance(result["data"], dict)
@@ -29,7 +29,7 @@ def test_espo_list_emails_tool(api_key_setup, setup_test_email):
     # assert data["total"] >= 1
 
 
-def test_espo_search_emails_tool(api_key_setup, setup_test_email):
+def test_search_emails_tool(api_key_setup, setup_test_email):
 
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
@@ -37,7 +37,7 @@ def test_espo_search_emails_tool(api_key_setup, setup_test_email):
     assert is_api_key_set, "No API key set in env file."
 
     search_term = "Proposal draft"
-    result = espo_list_emails_tool(text_filter=search_term)
+    result = list_emails_tool(text_filter=search_term)
 
     assert isinstance(result, dict)
     assert "data" in result and isinstance(result["data"], dict)
@@ -52,7 +52,7 @@ def test_espo_search_emails_tool(api_key_setup, setup_test_email):
     ), f"Created email id {fixture_id} not found in search results"
 
 
-def test_espo_create_and_delete_email_tool(api_key_setup):
+def test_create_and_delete_email_tool(api_key_setup):
 
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
@@ -67,19 +67,19 @@ def test_espo_create_and_delete_email_tool(api_key_setup):
         "is_html": True,
         "status": "Draft",
     }
-    result = espo_create_email_tool(**email_data)
+    result = create_email_tool(**email_data)
 
     assert isinstance(result, dict)
     assert "status_code" in result and result["status_code"] == 200
 
-    delete = espo_delete_email_tool(email_id=result["data"]["id"])
+    delete = delete_email_tool(email_id=result["data"]["id"])
 
     assert isinstance(delete, dict)
     assert "status_code" in delete and delete["status_code"] == 200
     assert "ok" in delete and delete["ok"] is True
 
 
-def test_espo_get_email_tool(api_key_setup, setup_test_email):
+def test_get_email_tool(api_key_setup, setup_test_email):
 
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
@@ -87,7 +87,7 @@ def test_espo_get_email_tool(api_key_setup, setup_test_email):
     assert is_api_key_set, "No API key set in env file."
 
     email_id = setup_test_email["data"]["id"]
-    result = espo_get_email_tool(email_id=email_id)
+    result = get_email_tool(email_id=email_id)
 
     assert isinstance(result, dict)
     assert "status_code" in result and result["status_code"] == 200
@@ -96,7 +96,7 @@ def test_espo_get_email_tool(api_key_setup, setup_test_email):
     assert result["data"]["id"] == email_id
 
 
-def test_espo_update_email_tool(api_key_setup, setup_test_email):
+def test_update_email_tool(api_key_setup, setup_test_email):
     """Update the fixture email and verify the changes persisted."""
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
@@ -106,13 +106,13 @@ def test_espo_update_email_tool(api_key_setup, setup_test_email):
     email_id = setup_test_email["data"]["id"]
     new_subject = "QA Updated Subject"
 
-    res = espo_update_email_tool(email_id=email_id, subject=new_subject)
+    res = update_email_tool(email_id=email_id, subject=new_subject)
     assert isinstance(res, dict)
     assert "status_code" in res and res["status_code"] == 200
     assert "ok" in res and res["ok"] is True
 
     # Fetch lead to verify updates
-    get_res = espo_get_email_tool(email_id=email_id)
+    get_res = get_email_tool(email_id=email_id)
     assert isinstance(get_res, dict)
     assert "status_code" in get_res and get_res["status_code"] == 200
     assert "ok" in get_res and get_res["ok"] is True
@@ -120,7 +120,7 @@ def test_espo_update_email_tool(api_key_setup, setup_test_email):
     assert get_res["data"].get("subject") == new_subject
 
 
-def test_espo_filter_by_email(api_key_setup, setup_test_email):
+def test_filter_by_email(api_key_setup, setup_test_email):
 
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
@@ -131,7 +131,7 @@ def test_espo_filter_by_email(api_key_setup, setup_test_email):
     assert fixture_email, "Fixture did not provide an emailAddress"
 
     where = [{"type": "equals", "attribute": "to", "value": fixture_email}]
-    result = espo_list_emails_tool(where_group=where, max_size=50)
+    result = list_emails_tool(where_group=where, max_size=50)
 
     assert isinstance(result, dict)
     assert "status_code" in result and result["status_code"] == 200

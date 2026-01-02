@@ -6,21 +6,21 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 import pytest
 from core.utils.state import global_state
 from core.utils.env import EnvConfig
-from app.tools.espo_create_lead import espo_create_lead_tool
-from app.tools.espo_delete_lead import espo_delete_lead_tool
-from app.tools.espo_create_campaign import espo_create_campaign_tool
-from app.tools.espo_delete_campaign import espo_delete_campaign_tool
-from app.tools.espo_create_contact import espo_create_contact_tool
-from app.tools.espo_delete_contact import espo_delete_contact_tool
-from app.tools.espo_create_account import espo_create_account_tool
-from app.tools.espo_delete_account import espo_delete_account_tool
-from app.tools.espo_create_email import espo_create_email_tool
-from app.tools.espo_delete_email import espo_delete_email_tool
-from app.tools.espo_create_target_list import espo_create_target_list_tool
-from app.tools.espo_delete_target_list import espo_delete_target_list_tool
-from app.tools.espo_delete_call import espo_delete_call_tool
-from app.tools.espo_create_call import espo_create_call_tool
-from app.tools.espo_list_users import espo_list_users_tool
+from app.tools.create_lead import create_lead_tool
+from app.tools.delete_lead import delete_lead_tool
+from app.tools.create_campaign import create_campaign_tool
+from app.tools.delete_campaign import delete_campaign_tool
+from app.tools.create_contact import create_contact_tool
+from app.tools.delete_contact import delete_contact_tool
+from app.tools.create_account import create_account_tool
+from app.tools.delete_account import delete_account_tool
+from app.tools.create_email import create_email_tool
+from app.tools.delete_email import delete_email_tool
+from app.tools.create_target_list import create_target_list_tool
+from app.tools.delete_target_list import delete_target_list_tool
+from app.tools.delete_call import delete_call_tool
+from app.tools.create_call import create_call_tool
+from app.tools.list_users import list_users_tool
 
 
 @pytest.fixture(scope="module")
@@ -51,7 +51,7 @@ def setup_test_lead():
         "email_address": "test.lead@example.com",
         "skip_duplicate_check": True,
     }
-    result = espo_create_lead_tool(**lead_data)
+    result = create_lead_tool(**lead_data)
 
     assert isinstance(result, dict)
     assert "status_code" in result and result["status_code"] == 200
@@ -59,7 +59,7 @@ def setup_test_lead():
 
     yield result
 
-    delete = espo_delete_lead_tool(lead_id=result["data"]["id"])
+    delete = delete_lead_tool(lead_id=result["data"]["id"])
 
     assert isinstance(delete, dict)
     assert "status_code" in delete and delete["status_code"] == 200
@@ -77,7 +77,7 @@ def setup_test_campaign():
     }
 
     # Create the campaign
-    result = espo_create_campaign_tool(**campaign_data)
+    result = create_campaign_tool(**campaign_data)
 
     # Basic assertions to ensure creation succeeded
     assert isinstance(result, dict)
@@ -89,7 +89,7 @@ def setup_test_campaign():
     yield result
 
     # Teardown: delete the test campaign
-    delete_result = espo_delete_campaign_tool(campaign_id=result["data"]["id"])
+    delete_result = delete_campaign_tool(campaign_id=result["data"]["id"])
 
     # Assertions to ensure deletion succeeded
     assert isinstance(delete_result, dict)
@@ -106,7 +106,7 @@ def setup_test_contact():
         "email_address": "test.lead@example.com",
         "skip_duplicate_check": True,
     }
-    result = espo_create_contact_tool(**contact_data)
+    result = create_contact_tool(**contact_data)
 
     assert isinstance(result, dict)
     assert "status_code" in result and result["status_code"] == 200
@@ -114,7 +114,7 @@ def setup_test_contact():
 
     yield result
 
-    delete = espo_delete_contact_tool(contact_id=result["data"]["id"])
+    delete = delete_contact_tool(contact_id=result["data"]["id"])
 
     assert isinstance(delete, dict)
     assert "status_code" in delete and delete["status_code"] == 200
@@ -131,7 +131,7 @@ def setup_test_account():
         "industry": "Advertising",
         "skip_duplicate_check": True,
     }
-    result = espo_create_account_tool(**account_data)
+    result = create_account_tool(**account_data)
 
     assert isinstance(result, dict)
     assert "status_code" in result and result["status_code"] == 200
@@ -139,7 +139,7 @@ def setup_test_account():
 
     yield result
 
-    delete = espo_delete_account_tool(account_id=result["data"]["id"])
+    delete = delete_account_tool(account_id=result["data"]["id"])
 
     assert isinstance(delete, dict)
     assert "status_code" in delete and delete["status_code"] == 200
@@ -157,7 +157,7 @@ def setup_test_email():
         "is_html": True,
         "status": "Draft",
     }
-    result = espo_create_email_tool(**email_data)
+    result = create_email_tool(**email_data)
 
     assert isinstance(result, dict)
     assert "status_code" in result and result["status_code"] == 200
@@ -165,7 +165,7 @@ def setup_test_email():
 
     yield result
 
-    delete = espo_delete_email_tool(email_id=result["data"]["id"])
+    delete = delete_email_tool(email_id=result["data"]["id"])
 
     assert isinstance(delete, dict)
     assert "status_code" in delete and delete["status_code"] == 200
@@ -178,7 +178,7 @@ def setup_test_target_list():
     target_list_data = {
         "name": "Test Target List",
     }
-    result = espo_create_target_list_tool(**target_list_data)
+    result = create_target_list_tool(**target_list_data)
 
     assert isinstance(result, dict)
     assert "status_code" in result and result["status_code"] == 200
@@ -186,7 +186,7 @@ def setup_test_target_list():
 
     yield result
 
-    delete = espo_delete_target_list_tool(target_list_id=result["data"]["id"])
+    delete = delete_target_list_tool(target_list_id=result["data"]["id"])
 
     assert isinstance(delete, dict)
     assert "status_code" in delete and delete["status_code"] == 200
@@ -196,7 +196,7 @@ def setup_test_target_list():
 @pytest.fixture(scope="module")
 def setup_test_call():
 
-    users = espo_list_users_tool()
+    users = list_users_tool()
 
     assert isinstance(users, dict)
     assert "data" in users and isinstance(users["data"], dict)
@@ -211,14 +211,14 @@ def setup_test_call():
         "date_end": "2026-11-29 12:34:56",
         "assigned_user_id": users["data"]["list"][0]["id"],
     }
-    result = espo_create_call_tool(**call_data)
+    result = create_call_tool(**call_data)
     assert isinstance(result, dict)
     assert "status_code" in result and result["status_code"] == 200
     assert "ok" in result and result["ok"] is True
 
     yield result
 
-    delete = espo_delete_call_tool(call_id=result["data"]["id"])
+    delete = delete_call_tool(call_id=result["data"]["id"])
 
     assert isinstance(delete, dict)
     assert "status_code" in delete and delete["status_code"] == 200

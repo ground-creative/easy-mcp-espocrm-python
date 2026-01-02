@@ -2,36 +2,36 @@ import os
 import sys
 import time
 from core.utils.state import global_state
-from app.tools.espo_list_campaigns import espo_list_campaigns_tool
-from app.tools.espo_create_campaign import espo_create_campaign_tool
-from app.tools.espo_delete_campaign import espo_delete_campaign_tool
-from app.tools.espo_get_campaign import espo_get_campaign_tool
-from app.tools.espo_update_campaign import espo_update_campaign_tool
+from app.tools.list_campaigns import list_campaigns_tool
+from app.tools.create_campaign import create_campaign_tool
+from app.tools.delete_campaign import delete_campaign_tool
+from app.tools.get_campaign import get_campaign_tool
+from app.tools.update_campaign import update_campaign_tool
 
-# from app.tools.espo_relate_lead_to_campaign import espo_relate_lead_to_campaign_tool
-# from app.tools.espo_unrelate_lead_from_campaign import (
-#    espo_unrelate_lead_from_campaign_tool,
+# from app.tools.relate_lead_to_campaign import relate_lead_to_campaign_tool
+# from app.tools.unrelate_lead_from_campaign import (
+#    unrelate_lead_from_campaign_tool,
 # )
-# from app.tools.espo_list_campaign_leads import espo_list_campaign_leads_tool
-# from app.tools.espo_list_campaign_contacts import espo_list_campaign_contacts_tool
-# from app.tools.espo_relate_contact_to_campaign import (
-#    espo_relate_contact_to_campaign_tool,
+# from app.tools.list_campaign_leads import list_campaign_leads_tool
+# from app.tools.list_campaign_contacts import list_campaign_contacts_tool
+# from app.tools.relate_contact_to_campaign import (
+#    relate_contact_to_campaign_tool,
 # )
-# from app.tools.espo_unrelate_contact_from_campaign import (
-#    espo_unrelate_contact_from_campaign_tool,
+# from app.tools.unrelate_contact_from_campaign import (
+#    unrelate_contact_from_campaign_tool,
 # )
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 
-def test_espo_list_campaigns_tool(api_key_setup, setup_test_campaign):
+def test_list_campaigns_tool(api_key_setup, setup_test_campaign):
 
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
     )
     assert is_api_key_set, "No API key set in env file."
 
-    result = espo_list_campaigns_tool(max_size=2)
+    result = list_campaigns_tool(max_size=2)
     assert isinstance(result, dict)
     assert "data" in result and isinstance(result["data"], dict)
 
@@ -42,7 +42,7 @@ def test_espo_list_campaigns_tool(api_key_setup, setup_test_campaign):
     assert data["total"] >= 1
 
 
-def test_espo_search_campaigns_tool(api_key_setup, setup_test_campaign):
+def test_search_campaigns_tool(api_key_setup, setup_test_campaign):
     """
     Test searching/listing campaigns and confirm that the fixture campaign appears in results.
     """
@@ -53,7 +53,7 @@ def test_espo_search_campaigns_tool(api_key_setup, setup_test_campaign):
     assert is_api_key_set, "No API key set in env file."
 
     search_term = "Test"
-    result = espo_list_campaigns_tool(text_filter=search_term)
+    result = list_campaigns_tool(text_filter=search_term)
 
     assert isinstance(result, dict)
     assert "data" in result and isinstance(result["data"], dict)
@@ -68,7 +68,7 @@ def test_espo_search_campaigns_tool(api_key_setup, setup_test_campaign):
     ), f"Created campaign id {fixture_id} not found in search results"
 
 
-def test_espo_filter_campaign_by_name(api_key_setup, setup_test_campaign):
+def test_filter_campaign_by_name(api_key_setup, setup_test_campaign):
     """
     Test filtering campaigns by name using where_group filter.
     """
@@ -84,7 +84,7 @@ def test_espo_filter_campaign_by_name(api_key_setup, setup_test_campaign):
 
     # Build a where_group filter to find campaigns by exact name
     where = [{"type": "equals", "attribute": "name", "value": fixture_name}]
-    result = espo_list_campaigns_tool(where_group=where, max_size=50)
+    result = list_campaigns_tool(where_group=where, max_size=50)
 
     # Basic response checks
     assert isinstance(result, dict)
@@ -107,7 +107,7 @@ def test_espo_filter_campaign_by_name(api_key_setup, setup_test_campaign):
     ), f"Fixture campaign not found by name '{fixture_name}' or id '{fixture_id}'"
 
 
-def test_espo_create_and_delete_campaign_tool(api_key_setup):
+def test_create_and_delete_campaign_tool(api_key_setup):
 
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
@@ -120,19 +120,19 @@ def test_espo_create_and_delete_campaign_tool(api_key_setup):
         "type": "Email",
         "skip_duplicate_check": True,
     }
-    result = espo_create_campaign_tool(**campaign_data)
+    result = create_campaign_tool(**campaign_data)
 
     assert isinstance(result, dict)
     assert "status_code" in result and result["status_code"] == 200
 
-    delete = espo_delete_campaign_tool(campaign_id=result["data"]["id"])
+    delete = delete_campaign_tool(campaign_id=result["data"]["id"])
 
     assert isinstance(delete, dict)
     assert "status_code" in delete and delete["status_code"] == 200
     assert "ok" in delete and delete["ok"] is True
 
 
-def test_espo_get_campaign_tool(api_key_setup, setup_test_campaign):
+def test_get_campaign_tool(api_key_setup, setup_test_campaign):
 
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
@@ -140,7 +140,7 @@ def test_espo_get_campaign_tool(api_key_setup, setup_test_campaign):
     assert is_api_key_set, "No API key set in env file."
 
     campaign_id = setup_test_campaign["data"]["id"]
-    result = espo_get_campaign_tool(campaign_id=campaign_id)
+    result = get_campaign_tool(campaign_id=campaign_id)
 
     assert isinstance(result, dict)
     assert "status_code" in result and result["status_code"] == 200
@@ -149,7 +149,7 @@ def test_espo_get_campaign_tool(api_key_setup, setup_test_campaign):
     assert result["data"]["id"] == campaign_id
 
 
-def test_espo_update_campaign_tool(api_key_setup, setup_test_campaign):
+def test_update_campaign_tool(api_key_setup, setup_test_campaign):
     """Update the fixture campaign and verify the changes persisted."""
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
@@ -160,7 +160,7 @@ def test_espo_update_campaign_tool(api_key_setup, setup_test_campaign):
     new_name = "Updated Campaign Name"
     new_description = "Updated by automated test"
 
-    res = espo_update_campaign_tool(
+    res = update_campaign_tool(
         campaign_id=campaign_id, name=new_name, description=new_description
     )
     assert isinstance(res, dict)
@@ -168,7 +168,7 @@ def test_espo_update_campaign_tool(api_key_setup, setup_test_campaign):
     assert "ok" in res and res["ok"] is True
 
     # Fetch campaign to verify updates
-    get_res = espo_get_campaign_tool(campaign_id=campaign_id)
+    get_res = get_campaign_tool(campaign_id=campaign_id)
     assert isinstance(get_res, dict)
     assert "status_code" in get_res and get_res["status_code"] == 200
     assert "ok" in get_res and get_res["ok"] is True
@@ -193,7 +193,7 @@ def test_espo_update_campaign_tool(api_key_setup, setup_test_campaign):
 #    campaign_id = setup_test_campaign["data"]["id"]
 
 # Step 1: Relate the lead to the campaign
-#    relate_result = espo_relate_lead_to_campaign_tool(
+#    relate_result = relate_lead_to_campaign_tool(
 #        campaign_id=campaign_id, lead_id=lead_id
 #    )
 #    assert isinstance(relate_result, dict)
@@ -201,7 +201,7 @@ def test_espo_update_campaign_tool(api_key_setup, setup_test_campaign):
 #    assert relate_result.get("ok") is True
 
 # Step 2: Verify the lead appears in the campaign's leads list
-#    list_result = espo_list_campaign_leads_tool(campaign_id=campaign_id)
+#    list_result = list_campaign_leads_tool(campaign_id=campaign_id)
 #    assert isinstance(list_result, dict)
 #    assert list_result.get("status_code") == 200
 #    assert list_result.get("ok") is True
@@ -212,7 +212,7 @@ def test_espo_update_campaign_tool(api_key_setup, setup_test_campaign):
 #    ), f"Lead {lead_id} not found in campaign {campaign_id} leads list"
 
 # Step 3: Unrelate the lead from the campaign
-#    unrelate_result = espo_unrelate_lead_from_campaign_tool(
+#    unrelate_result = unrelate_lead_from_campaign_tool(
 #        campaign_id=campaign_id, lead_id=lead_id
 #    )
 #    assert isinstance(unrelate_result, dict)
@@ -220,7 +220,7 @@ def test_espo_update_campaign_tool(api_key_setup, setup_test_campaign):
 #    assert unrelate_result.get("ok") is True
 
 # Step 4: Verify the lead no longer appears in the campaign's leads list
-#    list_after_unrelate = espo_list_campaign_leads_tool(campaign_id=campaign_id)
+#    list_after_unrelate = list_campaign_leads_tool(campaign_id=campaign_id)
 #    assert isinstance(list_after_unrelate, dict)
 #    assert list_after_unrelate.get("status_code") == 200
 #    leads_list_after = list_after_unrelate.get("data", {}).get("list", [])
@@ -246,7 +246,7 @@ def test_espo_update_campaign_tool(api_key_setup, setup_test_campaign):
 #    campaign_id = setup_test_campaign["data"]["id"]
 
 # Step 1: Relate the contact to the campaign
-#    relate_result = espo_relate_contact_to_campaign_tool(
+#    relate_result = relate_contact_to_campaign_tool(
 #        campaign_id=campaign_id, contact_id=contact_id
 #    )
 #    assert isinstance(relate_result, dict)
@@ -254,7 +254,7 @@ def test_espo_update_campaign_tool(api_key_setup, setup_test_campaign):
 #    assert relate_result.get("ok") is True
 
 # Step 2: Verify the contact appears in the campaign's contacts list
-#    list_result = espo_list_campaign_contacts_tool(campaign_id=campaign_id)
+#    list_result = list_campaign_contacts_tool(campaign_id=campaign_id)
 #    assert isinstance(list_result, dict)
 #    assert list_result.get("status_code") == 200
 #    assert list_result.get("ok") is True
@@ -265,7 +265,7 @@ def test_espo_update_campaign_tool(api_key_setup, setup_test_campaign):
 #    ), f"Contact {contact_id} not found in campaign {campaign_id} contacts list"
 
 # Step 3: Unrelate the contact from the campaign
-#    unrelate_result = espo_unrelate_contact_from_campaign_tool(
+#    unrelate_result = unrelate_contact_from_campaign_tool(
 #        campaign_id=campaign_id, contact_id=contact_id
 #    )
 #    assert isinstance(unrelate_result, dict)
@@ -273,7 +273,7 @@ def test_espo_update_campaign_tool(api_key_setup, setup_test_campaign):
 #    assert unrelate_result.get("ok") is True
 
 # Step 4: Verify the contact no longer appears in the campaign's contacts list
-#    list_after_unrelate = espo_list_campaign_contacts_tool(campaign_id=campaign_id)
+#    list_after_unrelate = list_campaign_contacts_tool(campaign_id=campaign_id)
 #    assert isinstance(list_after_unrelate, dict)
 #    assert list_after_unrelate.get("status_code") == 200
 #    contacts_list_after = list_after_unrelate.get("data", {}).get("list", [])

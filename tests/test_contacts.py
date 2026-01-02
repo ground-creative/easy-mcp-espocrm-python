@@ -1,23 +1,23 @@
 import os
 import sys
 from core.utils.state import global_state
-from app.tools.espo_list_contacts import espo_list_contacts_tool
-from app.tools.espo_create_contact import espo_create_contact_tool
-from app.tools.espo_delete_contact import espo_delete_contact_tool
-from app.tools.espo_update_contact import espo_update_contact_tool
-from app.tools.espo_get_contact import espo_get_contact_tool
+from app.tools.list_contacts import list_contacts_tool
+from app.tools.create_contact import create_contact_tool
+from app.tools.delete_contact import delete_contact_tool
+from app.tools.update_contact import update_contact_tool
+from app.tools.get_contact import get_contact_tool
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 
-def test_espo_list_contacts_tool(api_key_setup, setup_test_contact):
+def test_list_contacts_tool(api_key_setup, setup_test_contact):
 
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
     )
     assert is_api_key_set, "No API key set in env file."
 
-    result = espo_list_contacts_tool(max_size=2)
+    result = list_contacts_tool(max_size=2)
 
     assert isinstance(result, dict)
     assert "data" in result and isinstance(result["data"], dict)
@@ -29,7 +29,7 @@ def test_espo_list_contacts_tool(api_key_setup, setup_test_contact):
     assert data["total"] >= 1
 
 
-def test_espo_search_contacts_tool(api_key_setup, setup_test_contact):
+def test_search_contacts_tool(api_key_setup, setup_test_contact):
 
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
@@ -37,7 +37,7 @@ def test_espo_search_contacts_tool(api_key_setup, setup_test_contact):
     assert is_api_key_set, "No API key set in env file."
 
     search_term = "Test"
-    result = espo_list_contacts_tool(text_filter=search_term)
+    result = list_contacts_tool(text_filter=search_term)
 
     assert isinstance(result, dict)
     assert "data" in result and isinstance(result["data"], dict)
@@ -52,7 +52,7 @@ def test_espo_search_contacts_tool(api_key_setup, setup_test_contact):
     ), f"Created contact id {fixture_id} not found in search results"
 
 
-def test_espo_create_and_delete_contact_tool(api_key_setup):
+def test_create_and_delete_contact_tool(api_key_setup):
 
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
@@ -65,19 +65,19 @@ def test_espo_create_and_delete_contact_tool(api_key_setup):
         "email_address": "test.lead@example.com",
         "skip_duplicate_check": True,
     }
-    result = espo_create_contact_tool(**contact_data)
+    result = create_contact_tool(**contact_data)
 
     assert isinstance(result, dict)
     assert "status_code" in result and result["status_code"] == 200
 
-    delete = espo_delete_contact_tool(contact_id=result["data"]["id"])
+    delete = delete_contact_tool(contact_id=result["data"]["id"])
 
     assert isinstance(delete, dict)
     assert "status_code" in delete and delete["status_code"] == 200
     assert "ok" in delete and delete["ok"] is True
 
 
-def test_espo_get_contact_tool(api_key_setup, setup_test_contact):
+def test_get_contact_tool(api_key_setup, setup_test_contact):
 
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
@@ -85,7 +85,7 @@ def test_espo_get_contact_tool(api_key_setup, setup_test_contact):
     assert is_api_key_set, "No API key set in env file."
 
     contact_id = setup_test_contact["data"]["id"]
-    result = espo_get_contact_tool(contact_id=contact_id)
+    result = get_contact_tool(contact_id=contact_id)
 
     assert isinstance(result, dict)
     assert "status_code" in result and result["status_code"] == 200
@@ -94,7 +94,7 @@ def test_espo_get_contact_tool(api_key_setup, setup_test_contact):
     assert result["data"]["id"] == contact_id
 
 
-def test_espo_update_contact_tool(api_key_setup, setup_test_contact):
+def test_update_contact_tool(api_key_setup, setup_test_contact):
     """Update the fixture contact and verify the changes persisted."""
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
@@ -109,7 +109,7 @@ def test_espo_update_contact_tool(api_key_setup, setup_test_contact):
     new_description = "Updated by automated test"
 
     # Call update tool
-    res = espo_update_contact_tool(
+    res = update_contact_tool(
         contact_id=contact_id,
         first_name=new_first_name,
         last_name=new_last_name,
@@ -122,7 +122,7 @@ def test_espo_update_contact_tool(api_key_setup, setup_test_contact):
     assert res.get("ok") is True
 
     # Fetch contact to verify changes
-    get_res = espo_get_contact_tool(contact_id=contact_id)
+    get_res = get_contact_tool(contact_id=contact_id)
     assert isinstance(get_res, dict)
     assert get_res.get("status_code") == 200
     assert get_res.get("ok") is True
@@ -134,7 +134,7 @@ def test_espo_update_contact_tool(api_key_setup, setup_test_contact):
     assert data.get("description") == new_description
 
 
-def test_espo_filter_by_email(api_key_setup, setup_test_contact):
+def test_filter_by_email(api_key_setup, setup_test_contact):
 
     is_api_key_set = global_state.get(
         "middleware.AuthenticationMiddleware.is_authenticated"
@@ -145,7 +145,7 @@ def test_espo_filter_by_email(api_key_setup, setup_test_contact):
     assert fixture_email, "Fixture did not provide an emailAddress"
 
     where = [{"type": "equals", "attribute": "emailAddress", "value": fixture_email}]
-    result = espo_list_contacts_tool(where_group=where, max_size=50)
+    result = list_contacts_tool(where_group=where, max_size=50)
 
     assert isinstance(result, dict)
     assert "status_code" in result and result["status_code"] == 200

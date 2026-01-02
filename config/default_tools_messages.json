@@ -57,6 +57,9 @@
     "espo_get_lead_tool": {
       "request-start": "Getting lead with ID `{{ params.lead_id }}`..."
     },
+    "espo_get_call_tool": {
+      "request-start": "Getting call with ID `{{ params.call_id }}`..."
+    },
     "espo_get_target_list_tool": {
       "request-start": "Getting target list with ID `{{ params.target_list_id }}`..."
     },
@@ -64,16 +67,16 @@
       "request-start": "Getting user with ID `{{ params.user_id }}`..."
     },
     "espo_list_accounts_tool": {
-      "request-start": "Fetching accounts{% if params.text_filter %} matching '{{ params.text_filter }}'{% endif %}..."
+      "request-start": "Fetching accounts{% if params.primary_filter %} with primary_filter={{ params.primary_filter }}{% endif %}{% if params.text_filter %} text_filter='{{ params.text_filter }}'{% endif %}{% if params.attribute_select %} attributes={{ params.attribute_select | join(',') }}{% endif %}{% if params.bool_filter_list %} bool_filters={{ params.bool_filter_list | join(',') }}{% endif %}{% if params.where_group %} where_group={{ params.where_group | tojson }}{% endif %}{% if params.max_size %} max_size={{ params.max_size }}{% endif %}{% if params.order_by %} order_by={{ params.order_by }} {{ params.order }}{% endif %}{% if params.no_total or params.x_no_total %} no_total={{ params.no_total | default(params.x_no_total) }}{% endif %}..."
     },
     "espo_list_campaigns_tool": {
-      "request-start": "Fetching campaigns{% if params.text_filter %} matching '{{ params.text_filter }}'{% endif %}..."
+      "request-start": "Fetching campaigns{% if params.primary_filter %} with primary_filter={{ params.primary_filter }}{% endif %}{% if params.text_filter %} text_filter='{{ params.text_filter }}'{% endif %}{% if params.attribute_select %} attributes={{ params.attribute_select | join(',') }}{% endif %}{% if params.bool_filter_list %} bool_filters={{ params.bool_filter_list | join(',') }}{% endif %}{% if params.where_group %} where_group={{ params.where_group | tojson }}{% endif %}{% if params.max_size %} max_size={{ params.max_size }}{% endif %}{% if params.order_by %} order_by={{ params.order_by }} {{ params.order }}{% endif %}..."
     },
     "espo_list_contacts_tool": {
-      "request-start": "Fetching contacts{% if params.text_filter %} matching '{{ params.text_filter }}'{% endif %}..."
+      "request-start": "Fetching contacts{% if params.primary_filter %} with primary_filter={{ params.primary_filter }}{% endif %}{% if params.text_filter %} text_filter='{{ params.text_filter }}'{% endif %}{% if params.attribute_select %} attributes={{ params.attribute_select | join(',') }}{% endif %}{% if params.bool_filter_list %} bool_filters={{ params.bool_filter_list | join(',') }}{% endif %}{% if params.where_group %} where_group={{ params.where_group | tojson }}{% endif %}{% if params.max_size %} max_size={{ params.max_size }}{% endif %}{% if params.order_by %} order_by={{ params.order_by }} {{ params.order }}{% endif %}{% if params.x_no_total or params.no_total %} no_total={{ params.x_no_total | default(params.no_total) }}{% endif %}..."
     },
     "espo_list_emails_tool": {
-      "request-start": "Fetching emails{% if params.text_filter %} matching '{{ params.text_filter }}'{% endif %}..."
+      "request-start": "Fetching emails{% if params.primary_filter %} with primary_filter={{ params.primary_filter }}{% endif %}{% if params.text_filter %} text_filter='{{ params.text_filter }}'{% endif %}{% if params.attribute_select %} attributes={{ params.attribute_select | join(',') }}{% endif %}{% if params.bool_filter_list %} bool_filters={{ params.bool_filter_list | join(',') }}{% endif %}{% if params.where_group %} where_group={{ params.where_group | tojson }}{% endif %}{% if params.max_size %} max_size={{ params.max_size }}{% endif %}{% if params.order_by %} order_by={{ params.order_by }} {{ params.order }}{% endif %}..."
     },
     "espo_list_calls_tool": {
       "request-start": "Fetching calls{% if params.primary_filter %} with primary_filter={{ params.primary_filter }}{% endif %}{% if params.text_filter %} text_filter='{{ params.text_filter }}'{% endif %}{% if params.attribute_select %} attributes={{ params.attribute_select | join(',') }}{% endif %}{% if params.bool_filter_list %} bool_filters={{ params.bool_filter_list | join(',') }}{% endif %}{% if params.where_group %} where_group={{ params.where_group | tojson }}{% endif %}{% if params.max_size %} max_size={{ params.max_size }}{% endif %}{% if params.order_by %} order_by={{ params.order_by }} {{ params.order }}{% endif %}..."
@@ -82,10 +85,10 @@
       "request-start": "Fetching leads{% if params.primary_filter %} with primary_filter={{ params.primary_filter }}{% endif %}{% if params.text_filter %} text_filter='{{ params.text_filter }}'{% endif %}{% if params.attribute_select %} attributes={{ params.attribute_select | join(',') }}{% endif %}{% if params.bool_filter_list %} bool_filters={{ params.bool_filter_list | join(',') }}{% endif %}{% if params.where_group %} where_group={{ params.where_group | tojson }}{% endif %}{% if params.max_size %} max_size={{ params.max_size }}{% endif %}{% if params.order_by %} order_by={{ params.order_by }} {{ params.order }}{% endif %}..."
     },
     "espo_list_target_lists_tool": {
-      "request-start": "Fetching target lists{% if params.text_filter %} matching '{{ params.text_filter }}'{% endif %}..."
+      "request-start": "Fetching target lists{% if params.primary_filter %} with primary_filter={{ params.primary_filter }}{% endif %}{% if params.text_filter %} text_filter='{{ params.text_filter }}'{% endif %}{% if params.attribute_select %} attributes={{ params.attribute_select | join(',') }}{% endif %}{% if params.bool_filter_list %} bool_filters={{ params.bool_filter_list | join(',') }}{% endif %}{% if params.where_group %} where_group={{ params.where_group | tojson }}{% endif %}{% if params.max_size %} max_size={{ params.max_size }}{% endif %}{% if params.order_by %} order_by={{ params.order_by }} {{ params.order }}{% endif %}..."
     },
     "espo_list_users_tool": {
-      "request-start": "Fetching users{% if params.text_filter %} matching '{{ params.text_filter }}'{% endif %}..."
+      "request-start": "Fetching users{% if params.primary_filter %} with primary_filter={{ params.primary_filter }}{% endif %}{% if params.text_filter %} text_filter='{{ params.text_filter }}'{% endif %}{% if params.attribute_select %} attributes={{ params.attribute_select | join(',') }}{% endif %}{% if params.bool_filter_list %} bool_filters={{ params.bool_filter_list | join(',') }}{% endif %}{% if params.where_group %} where_group={{ params.where_group | tojson }}{% endif %}{% if params.max_size %} max_size={{ params.max_size }}{% endif %}{% if params.order_by %} order_by={{ params.order_by }} {{ params.order }}{% endif %}{% if params.x_no_total or params.no_total %} no_total={{ params.x_no_total | default(params.no_total) }}{% endif %}..."
     },
     "espo_update_account_tool": {
       "request-start": "Updating account with ID `{{ params.account_id }}`..."
@@ -101,6 +104,9 @@
     },
     "espo_update_lead_tool": {
       "request-start": "Updating lead with ID `{{ params.lead_id }}`..."
+    },
+    "espo_update_call_tool": {
+      "request-start": "Updating call with ID `{{ params.call_id }}`..."
     },
     "espo_update_target_list_tool": {
       "request-start": "Updating target list with ID `{{ params.target_list_id }}`..."
