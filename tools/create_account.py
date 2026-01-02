@@ -126,43 +126,70 @@ def create_account_tool(
     ] = None,
 ) -> Dict:
     """
-    Update an existing Account in EspoCRM.
+    Create a new Account in EspoCRM.
 
-    This tool updates an Account record using common Account fields. Any parameter set to `None` is omitted from
-    the request to avoid overwriting existing server values.
+    This tool creates an Account record using common EspoCRM Account fields.
+    Parameters map directly to EspoCRM Account attributes. Any parameter set
+    to `None` is omitted from the request to avoid sending unnecessary or
+    empty values.
+
+    Accounts can include contact details, billing and shipping addresses,
+    relationships to campaigns, teams, and target lists, as well as custom
+    EspoCRM fields.
 
     Args:
-    - `account_id` (str): ID of the Account record to update.
-    - `name` (Optional[str]): Account name (<=249 chars).
-    - `website` (Optional[str]): Website (<=255 chars).
-    - `description` (Optional[str]): Description / notes.
-    - `email_address` (Optional[str]): Primary email (<=255 chars).
+    - `name` (Optional[str]): Account name (<= 249 characters).
+    - `website` (Optional[str]): Website URL (<= 255 characters).
+    - `description` (Optional[str]): Description or internal notes.
+    - `email_address` (Optional[str]): Primary email address (<= 255 characters).
     - `email_address_data` (Optional[List[Dict[str, Any]]]): Multiple email objects.
-    - `phone_number` (Optional[str]): Primary phone (<=36 chars).
+    - `email_address_is_opted_out` (Optional[bool]): Email opted-out flag.
+    - `email_address_is_invalid` (Optional[bool]): Email invalid flag.
+    - `phone_number` (Optional[str]): Primary phone number (<= 36 characters).
     - `phone_number_data` (Optional[List[Dict[str, Any]]]): Multiple phone objects.
-    - `type` (Optional[str]): Account type (Customer, Investor, Partner, Reseller).
-    - `industry` (Optional[str]): Industry (see API allowed values).
-    - `sic_code` (Optional[str]): SIC Code (<=40 chars).
-    - `billing_address_*` / `shipping_address_*` : address fields.
-    - `campaign_id`, `assigned_user_id`, `teams_ids`, `target_lists_ids`, `target_list_id`: relations.
-    - `email_address_is_opted_out`, `email_address_is_invalid`, `phone_number_is_opted_out`, `phone_number_is_invalid`: opt-out / invalid flags.
-    - `version_number` (Optional[str]): Sent as header X-Version-Number for optimistic locking.
-    - `custom_fields` (Optional[Dict[str, Any]]): EspoCRM custom fields (prefix `c`).
+    - `phone_number_is_opted_out` (Optional[bool]): Phone opted-out flag.
+    - `phone_number_is_invalid` (Optional[bool]): Phone invalid flag.
+    - `type` (Optional[str]): Account category (Customer, Investor, Partner, Reseller).
+    - `industry` (Optional[str]): Industry (EspoCRM allowed values).
+    - `sic_code` (Optional[str]): SIC code (<= 40 characters).
+    - `billing_address_street` (Optional[str]): Billing street address.
+    - `billing_address_city` (Optional[str]): Billing city.
+    - `billing_address_state` (Optional[str]): Billing state.
+    - `billing_address_country` (Optional[str]): Billing country.
+    - `billing_address_postal_code` (Optional[str]): Billing postal code.
+    - `shipping_address_street` (Optional[str]): Shipping street address.
+    - `shipping_address_city` (Optional[str]): Shipping city.
+    - `shipping_address_state` (Optional[str]): Shipping state.
+    - `shipping_address_country` (Optional[str]): Shipping country.
+    - `shipping_address_postal_code` (Optional[str]): Shipping postal code.
+    - `campaign_id` (Optional[str]): Related Campaign record ID.
+    - `assigned_user_id` (Optional[str]): Assigned user ID.
+    - `teams_ids` (Optional[List[str]]): Team IDs.
+    - `target_lists_ids` (Optional[List[str]]): Target List IDs.
+    - `target_list_id` (Optional[str]): Target List ID.
+    - `email_address_is_opted_out_flag` (Optional[bool]): Maps to `emailAddressIsOptedOut`.
+    - `email_address_is_invalid_flag` (Optional[bool]): Maps to `emailAddressIsInvalid`.
+    - `phone_number_is_opted_out_flag` (Optional[bool]): Maps to `phoneNumberIsOptedOut`.
+    - `phone_number_is_invalid_flag` (Optional[bool]): Maps to `phoneNumberIsInvalid`.
+    - `duplicate_source_id` (Optional[str]): Record ID being duplicated (sent as header `X-Duplicate-Source-Id`).
+    - `skip_duplicate_check` (Optional[bool]): Skip duplicate check (sent as header `X-Skip-Duplicate-Check`).
+    - `custom_fields` (Optional[Dict[str, Any]]): Custom EspoCRM fields (must start with `c` prefix).
 
     Example Requests:
-    - Basic:
-    update_account_tool(account_id="abc123", name="Acme Corp", website="https://acme.com", email_address="info@acme.com")
-    - With multiple emails & phones:
-    update_account_tool(account_id="abc123", email_address_data=[{"emailAddress":"info@acme.com","primary":True}], phone_number_data=[{"phoneNumber":"+123","primary":True,"type":"Office"}])
-    - With version control:
-    update_account_tool(account_id="abc123", name="Acme Corp", version_number="3")
-    - With custom fields:
-    update_account_tool(account_id="abc123", custom_fields={"c_customer_score":95})
+    - Create a basic account:
+      create_account_tool(name="Acme Corp", website="https://acme.com", email_address="info@acme.com")
+    - Create an account with multiple emails and phones:
+      create_account_tool(name="Acme Corp", email_address_data=[{"emailAddress": "info@acme.com", "primary": True}], phone_number_data=[{"phoneNumber": "+123456789", "type": "Office", "primary": True}])
+    - Create an account with addresses and relations:
+      create_account_tool(name="Acme Corp", billing_address_city="Bangkok", shipping_address_country="Thailand", assigned_user_id="USER_ID_123")
+    - Create an account with custom fields:
+      create_account_tool(name="Acme Corp", custom_fields={"c_customer_score": 95, "c_region": "APAC"})
 
     Returns:
     - A structured dict containing the API response with keys:
-    `status_code`, `ok`, `data`, `error`, and `error_type`.
+      `status_code`, `ok`, `data`, `error`, and `error_type`.
     """
+
     logger.info(f"Request received to create account with params: {locals()}")
 
     # Check api key and address are set in headers
